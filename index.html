@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIS Command Center | Enterprise Operations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --navy-900:#060E1A;--navy-800:#0F1C2E;--navy-700:#162438;--navy-600:#1D304A;--navy-500:#2A4260;--navy-400:#3D5A78;
+      --blue-600:#1A56DB;--blue-500:#2563EB;--blue-400:#3B82F6;--blue-100:#DBEAFE;--blue-50:#EFF6FF;
+      --emerald-600:#059669;--emerald-500:#10B981;--emerald-100:#D1FAE5;--emerald-50:#ECFDF5;
+      --amber-600:#D97706;--amber-500:#F59E0B;--amber-100:#FEF3C7;--amber-50:#FFFBEB;
+      --red-700:#B91C1C;--red-600:#DC2626;--red-500:#EF4444;--red-100:#FEE2E2;--red-50:#FEF2F2;
+      --purple-500:#8B5CF6;--purple-100:#EDE9FE;
+      --slate-900:#0F172A;--slate-800:#1E293B;--slate-700:#334155;--slate-600:#475569;--slate-500:#64748B;--slate-400:#94A3B8;--slate-300:#CBD5E1;--slate-200:#E2E8F0;--slate-100:#F1F5F9;--slate-50:#F8FAFC;--white:#FFFFFF;
+      --sidebar-bg:var(--navy-800);--sidebar-width:260px;
+      --surface:var(--white);--surface-2:var(--slate-50);--surface-border:var(--slate-200);--page-bg:#EDF1F7;
+      --text-primary:var(--slate-900);--text-secondary:var(--slate-600);--text-muted:var(--slate-400);--text-on-dark:rgba(255,255,255,0.9);--text-on-dark-2:rgba(255,255,255,0.55);
+      --shadow-xs:0 1px 2px rgba(0,0,0,0.04);--shadow-sm:0 2px 8px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 4px 16px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);--shadow-lg:0 8px 32px rgba(0,0,0,0.10),0 4px 8px rgba(0,0,0,0.04);--shadow-xl:0 16px 48px rgba(0,0,0,0.14);--shadow-blue:0 4px 16px rgba(37,99,235,0.25);
+      --r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:28px;
+      --ease-out:cubic-bezier(0.16,1,0.3,1);--ease-in-out:cubic-bezier(0.45,0,0.55,1);--dur-fast:150ms;--dur-base:220ms;--dur-slow:380ms;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--page-bg);color:var(--text-primary);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}
+    button{font-family:inherit;cursor:pointer;}
+    input,select,textarea{font-family:inherit;}
+    img{max-width:100%;}
+    ::-webkit-scrollbar{width:6px;height:6px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--slate-300);border-radius:10px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--slate-400);}
+
+    /* LOGIN */
+    .login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy-900) 0%,var(--navy-700) 50%,#1A2F50 100%);display:flex;align-items:center;justify-content:center;z-index:3000;overflow:hidden;}
+    .login-screen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(37,99,235,0.15) 0%,transparent 70%);pointer-events:none;}
+    .login-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);backdrop-filter:blur(24px);border-radius:var(--r-2xl);padding:48px 44px;width:100%;max-width:420px;position:relative;animation:fadeUp 0.5s var(--ease-out) both;}
+    .login-logo-wrap{text-align:center;margin-bottom:32px;}
+    .login-logo-img{height:40px;margin-bottom:16px;filter:brightness(0) invert(1);}
+    .login-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:700;color:var(--white);letter-spacing:-0.02em;}
+    .login-sub{font-size:0.85rem;color:rgba(255,255,255,0.5);margin-top:4px;}
+    .login-field{margin-bottom:18px;}
+    .login-field label{display:block;font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.6);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;}
+    .login-field input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:var(--r-md);color:var(--white);font-size:0.9rem;transition:border-color var(--dur-fast),background var(--dur-fast);outline:none;}
+    .login-field input::placeholder{color:rgba(255,255,255,0.3);}
+    .login-field input:focus{border-color:rgba(59,130,246,0.6);background:rgba(255,255,255,0.10);box-shadow:0 0 0 3px rgba(59,130,246,0.15);}
+    .btn-login{width:100%;padding:14px;background:var(--blue-500);color:white;font-size:0.9rem;font-weight:600;border:none;border-radius:var(--r-md);margin-top:8px;letter-spacing:0.02em;transition:background var(--dur-fast),transform var(--dur-fast),box-shadow var(--dur-fast);}
+    .btn-login:hover{background:var(--blue-600);transform:translateY(-1px);box-shadow:var(--shadow-blue);}
+    .btn-login:active{transform:translateY(0);}
+    #loginError{color:#FCA5A5;font-size:0.8rem;text-align:center;margin-top:14px;display:none;padding:10px 14px;background:rgba(239,68,68,0.12);border-radius:var(--r-sm);border:1px solid rgba(239,68,68,0.2);}
+
+    /* SHELL */
+    #mainApp{display:none;}
+    .shell{display:flex;min-height:100vh;}
+    .sidebar{width:var(--sidebar-width);background:var(--sidebar-bg);display:flex;flex-direction:column;position:fixed;inset-block:0;left:0;z-index:200;overflow:hidden;}
+    .sidebar-header{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
+    .sidebar-logo{display:flex;flex-direction:column;gap:6px;}
+    .sidebar-logo img{height:28px;width:auto;filter:brightness(0) invert(1);opacity:0.9;}
+    .sidebar-appname{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;color:var(--white);letter-spacing:-0.01em;white-space:nowrap;}
+    .sidebar-tagline{font-size:0.7rem;color:rgba(255,255,255,0.35);white-space:nowrap;letter-spacing:0.02em;}
+    .sidebar-alert{margin:12px 12px 0;background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.3);border-radius:var(--r-sm);padding:9px 12px;font-size:0.72rem;color:#FCA5A5;display:none;line-height:1.4;}
+    .sidebar-alert.visible{display:block;}
+    .sidebar-alert strong{display:block;color:#F87171;margin-bottom:2px;}
+    .sidebar-nav{flex:1;padding:16px 10px;overflow-y:auto;overflow-x:hidden;}
+    .nav-section-label{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.25);padding:12px 10px 6px;white-space:nowrap;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);color:rgba(255,255,255,0.55);font-size:0.875rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:background var(--dur-fast),color var(--dur-fast);margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
+    .nav-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);}
+    .nav-item.active{background:rgba(37,99,235,0.25);color:#93C5FD;border:1px solid rgba(37,99,235,0.3);}
+    .nav-item .nav-icon{width:18px;height:18px;flex-shrink:0;font-size:0.9rem;text-align:center;line-height:18px;}
+    .nav-badge{margin-left:auto;background:var(--red-600);color:white;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center;}
+    .sidebar-footer{padding:12px 10px 16px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
+    .sidebar-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-md);color:rgba(255,255,255,0.6);font-size:0.8rem;}
+    .user-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--blue-500),var(--purple-500));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;flex-shrink:0;}
+    .user-info{flex:1;min-width:0;}
+    .user-name{font-weight:600;color:rgba(255,255,255,0.8);font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .user-role{font-size:0.68rem;color:rgba(255,255,255,0.35);}
+    .btn-logout{background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.85rem;padding:4px;cursor:pointer;transition:color var(--dur-fast);}
+    .btn-logout:hover{color:#FCA5A5;}
+
+    /* MAIN */
+    .main-wrapper{margin-left:var(--sidebar-width);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{background:var(--surface);border-bottom:1px solid var(--surface-border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-xs);}
+    .topbar-left{display:flex;align-items:center;gap:16px;}
+    .page-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em;}
+    .page-breadcrumb{font-size:0.78rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;}
+    .topbar-right{display:flex;align-items:center;gap:10px;}
+    .role-chip{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+    .role-chip.admin{background:var(--blue-50);color:var(--blue-600);border:1px solid var(--blue-100);}
+    .role-chip.viewer{background:var(--slate-100);color:var(--slate-600);border:1px solid var(--slate-200);}
+    .role-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.8;}
+    .topbar-btn{padding:8px 14px;border-radius:var(--r-sm);font-size:0.78rem;font-weight:600;border:1px solid var(--surface-border);background:var(--surface);color:var(--text-secondary);display:inline-flex;align-items:center;gap:7px;transition:all var(--dur-fast);white-space:nowrap;}
+    .topbar-btn:hover{background:var(--slate-50);border-color:var(--slate-300);color:var(--text-primary);}
+    .topbar-btn.primary{background:var(--blue-500);color:white;border-color:var(--blue-500);}
+    .topbar-btn.primary:hover{background:var(--blue-600);border-color:var(--blue-600);box-shadow:var(--shadow-blue);}
+    .page-content{flex:1;padding:28px 32px;}
+
+    /* ALERT BANNER */
+    .alert-banner{border-radius:var(--r-lg);padding:14px 20px;margin-bottom:24px;display:none;align-items:center;gap:14px;font-size:0.85rem;}
+    .alert-banner.critical{background:linear-gradient(135deg,var(--red-50),#FFF5F5);border:1px solid #FECACA;color:var(--red-700);display:flex;}
+    .alert-banner.warning{background:var(--amber-50);border:1px solid var(--amber-100);color:var(--amber-600);display:flex;}
+    .alert-banner.info{background:var(--blue-50);border:1px solid var(--blue-100);color:var(--blue-600);display:flex;}
+    .alert-icon{font-size:1.1rem;flex-shrink:0;}
+    .alert-content{flex:1;}
+    .alert-title{font-weight:700;margin-bottom:1px;}
+    .alert-desc{opacity:0.8;font-size:0.8rem;}
+    .alert-dismiss{background:none;border:none;cursor:pointer;opacity:0.5;font-size:1.1rem;padding:4px;color:inherit;}
+    .alert-dismiss:hover{opacity:1;}
+
+    /* KPI */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-bottom:24px;}
+    .kpi-card{background:var(--surface);border-radius:var(--r-lg);padding:18px 20px;box-shadow:var(--shadow-sm);border:1px solid var(--surface-border);position:relative;overflow:hidden;transition:transform var(--dur-base),box-shadow var(--dur-base);animation:fadeUp var(--dur-slow) var(--ease-out) both;}
+    .kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:4px 4px 0 0;background:var(--kpi-accent,var(--blue-500));}
+    .kpi-icon-wrap{width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:0.9rem;margin-bottom:12px;background:var(--kpi-icon-bg,var(--blue-50));color:var(--kpi-accent,var(--blue-500));}
+    .kpi-label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:5px;}
+    .kpi-value{font-family:'DM Mono',monospace;font-size:1.85rem;font-weight:500;color:var(--text-primary);line-height:1;margin-bottom:7px;letter-spacing:-0.02em;}
+    .kpi-trend{font-size:0.7rem;display:flex;align-items:center;gap:5px;color:var(--text-muted);font-weight:500;}
+    .kpi-trend.up{color:var(--emerald-600);}
+    .kpi-trend.down{color:var(--red-600);}
+    .kpi-trend.warn{color:var(--amber-600);}
+
+    /* KPI group divider label */
+    .kpi-section-label{grid-column:1/-1;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);padding:2px 2px 0;border-top:1px solid var(--surface-border);margin-top:4px;}
+
+    /* SECTION HEADER */
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+    .section-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em;}
+    .section-count{font-size:0.78rem;color:var(--text-muted);background:var(--slate-100);padding:3px 10px;border-radius:20px;font-weight:600;margin-left:8px;}
+
+    /* FILTER BAR */
+    .filter-bar{background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--r-lg);padding:14px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px;box-shadow:var(--shadow-xs);}
+    .filter-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--slate-50);border:1px solid var(--slate-200);border-radius:var(--r-sm);min-width:150px;}
+    .filter-pill i{color:var(--text-muted);font-size:0.8rem;flex-shrink:0;}
+    .filter-pill select,.filter-pill input{border:none;background:transparent;font-size:0.82rem;outline:none;color:var(--text-primary);flex:1;min-width:0;}
+    .filter-search{flex:1;min-width:220px;}
+    .filter-divider{width:1px;height:32px;background:var(--slate-200);flex-shrink:0;}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--r-sm);font-size:0.82rem;font-weight:600;border:1px solid transparent;transition:all var(--dur-fast);cursor:pointer;white-space:nowrap;font-family:inherit;}
+    .btn-primary{background:var(--blue-500);color:white;border-color:var(--blue-500);}
+    .btn-primary:hover{background:var(--blue-600);border-color:var(--blue-600);box-shadow:var(--shadow-blue);transform:translateY(-1px);}
+    .btn-outline{background:var(--surface);color:var(--text-secondary);border-color:var(--surface-border);}
+    .btn-outline:hover{background:var(--slate-50);border-color:var(--slate-300);}
+    .btn-danger{background:var(--red-600);color:white;border-color:var(--red-600);}
+    .btn-danger:hover{background:var(--red-700);}
+    .btn-success{background:var(--emerald-600);color:white;border-color:var(--emerald-600);}
+    .btn-success:hover{background:#047857;}
+    .btn-sm{padding:6px 12px;font-size:0.76rem;}
+    .btn-xs{padding:4px 10px;font-size:0.72rem;}
+    .btn-ghost{background:transparent;border:none;color:var(--text-muted);padding:6px 10px;}
+    .btn-ghost:hover{background:var(--slate-100);color:var(--text-primary);}
+
+    /* CARDS */
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;}
+    .entity-card{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--surface-border);box-shadow:var(--shadow-sm);overflow:hidden;transition:transform var(--dur-base),box-shadow var(--dur-base);animation:fadeUp var(--dur-slow) var(--ease-out) both;display:flex;flex-direction:column;}
+    .entity-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
+    .entity-card.risk-critical{border-color:#FECACA;border-left:4px solid var(--red-500);}
+    .entity-card.risk-warning{border-color:#FDE68A;border-left:4px solid var(--amber-500);}
+    .entity-card-top{padding:18px 20px 14px;border-bottom:1px solid var(--surface-border);}
+    .entity-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;}
+    .entity-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em;line-height:1.25;}
+    .entity-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;}
+    .entity-meta-item{font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;}
+
+    /* CHIPS */
+    .chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:0.68rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;}
+    .chip::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+    .chip-critical{background:var(--red-100);color:var(--red-700);border:1px solid #FECACA;}
+    .chip-warning{background:var(--amber-100);color:var(--amber-600);border:1px solid #FDE68A;}
+    .chip-success{background:var(--emerald-100);color:var(--emerald-600);border:1px solid #A7F3D0;}
+    .chip-info{background:var(--blue-100);color:var(--blue-600);border:1px solid var(--blue-100);}
+    .chip-neutral{background:var(--slate-100);color:var(--slate-600);border:1px solid var(--slate-200);}
+
+    /* PROGRESS */
+    .progress-wrap{margin:10px 0 6px;}
+    .progress-label{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;}
+    .progress-track{height:6px;background:var(--slate-100);border-radius:10px;overflow:hidden;}
+    .progress-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--blue-500),var(--blue-400));transition:width 0.7s var(--ease-out);}
+    .progress-fill.danger{background:linear-gradient(90deg,var(--red-500),#F87171);}
+    .progress-fill.warning{background:linear-gradient(90deg,var(--amber-500),#FCD34D);}
+    .progress-fill.success{background:linear-gradient(90deg,var(--emerald-500),#34D399);}
+
+    /* CARD BODY */
+    .entity-card-body{padding:14px 20px;flex:1;}
+
+    /* STATS ROWS */
+    .stats-row{display:flex;gap:0;border:1px solid var(--surface-border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;}
+    .stat-cell{flex:1;padding:9px 10px;text-align:center;border-right:1px solid var(--surface-border);}
+    .stat-cell:last-child{border-right:none;}
+    .stat-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);font-weight:600;margin-bottom:3px;}
+    .stat-val{font-family:'DM Mono',monospace;font-size:0.95rem;font-weight:500;color:var(--text-primary);}
+    .stat-val.red{color:var(--red-600);}
+    .stat-val.amber{color:var(--amber-600);}
+    .stat-val.green{color:var(--emerald-600);}
+
+    /* days row subtitle */
+    .stats-row-label{font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:5px;}
+
+    /* NBA */
+    .nba-strip{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--r-sm);font-size:0.78rem;font-weight:500;margin-bottom:10px;}
+    .nba-strip.critical{background:var(--red-50);color:var(--red-700);border:1px solid #FECACA;}
+    .nba-strip.warning{background:var(--amber-50);color:var(--amber-600);border:1px solid #FDE68A;}
+    .nba-strip.ok{background:var(--emerald-50);color:var(--emerald-600);border:1px solid #A7F3D0;}
+    .nba-strip i{flex-shrink:0;font-size:0.85rem;}
+
+    /* CARD FOOTER */
+    .entity-card-footer{padding:12px 20px;border-top:1px solid var(--surface-border);background:var(--slate-50);display:flex;gap:8px;align-items:center;}
+
+    /* EMPTY STATE */
+    .empty-state{grid-column:1/-1;background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--r-xl);padding:64px 32px;text-align:center;box-shadow:var(--shadow-sm);}
+    .empty-icon{width:64px;height:64px;background:var(--slate-100);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 20px;}
+    .empty-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;}
+    .empty-sub{font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;}
+
+    /* SKELETON */
+    .skeleton{background:linear-gradient(90deg,var(--slate-100) 25%,var(--slate-200) 50%,var(--slate-100) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm);}
+    @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+    /* ANALYTICS */
+    .analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:18px;margin-bottom:20px;}
+    .chart-card{background:var(--surface);border:1px solid var(--surface-border);border-radius:var(--r-lg);padding:22px 24px;box-shadow:var(--shadow-sm);}
+    .chart-title{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;color:var(--text-primary);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+    canvas{max-height:260px;}
+    .leaderboard-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--surface-border);}
+    .leaderboard-item:last-child{border-bottom:none;}
+    .lb-rank{font-family:'DM Mono',monospace;font-size:0.8rem;font-weight:500;color:var(--text-muted);width:24px;text-align:center;}
+    .lb-rank.gold{color:#B45309;font-weight:700;}
+    .lb-rank.silver{color:var(--slate-500);}
+    .lb-rm{flex:1;font-size:0.85rem;font-weight:600;color:var(--text-primary);}
+    .lb-count{font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--text-muted);}
+    .lb-bar-wrap{width:80px;}
+    .lb-bar{height:4px;background:var(--slate-100);border-radius:10px;overflow:hidden;}
+    .lb-bar-fill{height:100%;background:var(--blue-500);border-radius:10px;}
+    .delay-cards{display:flex;gap:12px;}
+    .delay-bucket{flex:1;padding:16px;border-radius:var(--r-md);text-align:center;}
+    .delay-bucket.ok{background:var(--emerald-50);border:1px solid #A7F3D0;}
+    .delay-bucket.warn{background:var(--amber-50);border:1px solid #FDE68A;}
+    .delay-bucket.crit{background:var(--red-50);border:1px solid #FECACA;}
+    .delay-bucket-count{font-family:'DM Mono',monospace;font-size:2rem;font-weight:500;line-height:1;margin-bottom:6px;}
+    .delay-bucket-label{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;}
+
+    /* MODALS */
+    .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(6px);display:none;justify-content:center;align-items:center;z-index:1000;padding:20px;}
+    .modal-container{background:var(--surface);border-radius:var(--r-xl);width:100%;max-width:860px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-xl);animation:fadeUp 0.22s var(--ease-out) both;}
+    .modal-header{padding:24px 28px 20px;border-bottom:1px solid var(--surface-border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:2;border-radius:var(--r-xl) var(--r-xl) 0 0;}
+    .modal-title{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;color:var(--text-primary);}
+    .modal-close{width:32px;height:32px;background:var(--slate-100);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--text-muted);cursor:pointer;transition:background var(--dur-fast),color var(--dur-fast);}
+    .modal-close:hover{background:var(--slate-200);color:var(--text-primary);}
+    .modal-body{padding:24px 28px;}
+    .modal-footer{padding:16px 28px;border-top:1px solid var(--surface-border);display:flex;justify-content:flex-end;gap:10px;background:var(--slate-50);border-radius:0 0 var(--r-xl) var(--r-xl);}
+    .form-group{margin-bottom:18px;}
+    .form-label{display:block;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);margin-bottom:7px;}
+    .form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border:1px solid var(--slate-200);border-radius:var(--r-sm);font-size:0.875rem;color:var(--text-primary);background:var(--surface);transition:border-color var(--dur-fast),box-shadow var(--dur-fast);outline:none;}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue-400);box-shadow:0 0 0 3px rgba(59,130,246,0.12);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .phase-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+    .phase-table thead th{background:var(--slate-50);padding:10px 14px;text-align:left;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);border-bottom:1px solid var(--surface-border);position:sticky;top:0;}
+    .phase-table tbody td{padding:10px 14px;border-bottom:1px solid var(--surface-border);vertical-align:middle;}
+    .phase-table tbody tr:hover{background:var(--slate-50);}
+    .phase-table tbody tr.row-delayed{background:#FFF5F5;}
+    .phase-table tbody tr.row-delayed:hover{background:#FEE8E8;}
+    .phase-name{font-weight:600;color:var(--text-primary);}
+    .stage-stepper{display:flex;gap:0;background:var(--slate-100);border-radius:var(--r-lg);padding:4px;margin-bottom:20px;overflow-x:auto;}
+    .stage-step{flex:1;text-align:center;padding:9px 8px;border-radius:var(--r-md);font-size:0.76rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all var(--dur-fast);color:var(--text-muted);min-width:90px;border:none;background:none;}
+    .stage-step:hover{background:rgba(255,255,255,0.6);color:var(--text-primary);}
+    .stage-step.completed{background:var(--emerald-500);color:white;}
+    .stage-step.active{background:var(--surface);color:var(--blue-600);box-shadow:var(--shadow-sm);font-weight:700;}
+    .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
+    .doc-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--slate-50);border-radius:var(--r-sm);border:1px solid var(--surface-border);transition:background var(--dur-fast);cursor:pointer;}
+    .doc-item:hover{background:var(--blue-50);border-color:var(--blue-100);}
+    .doc-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--emerald-600);cursor:pointer;}
+    .doc-item-label{font-size:0.8rem;color:var(--text-primary);font-weight:500;flex:1;}
+    .doc-item-status{font-size:0.7rem;font-weight:700;}
+    .doc-item-status.done{color:var(--emerald-600);}
+    .doc-item-status.pending{color:var(--amber-600);}
+
+    /* TOAST */
+    .toast-container{position:fixed;bottom:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:10px;}
+    .toast{display:flex;align-items:center;gap:12px;background:var(--slate-800);color:white;padding:13px 18px;border-radius:var(--r-md);font-size:0.83rem;font-weight:500;box-shadow:var(--shadow-xl);animation:slideRight 0.3s var(--ease-out) both;max-width:340px;}
+    .toast-icon{font-size:1rem;flex-shrink:0;}
+    @keyframes slideRight{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+    .app-footer{text-align:center;padding:18px 32px;border-top:1px solid var(--surface-border);font-size:0.78rem;color:var(--text-muted);background:var(--surface);}
+    .app-footer strong{color:var(--blue-600);}
+
+    @media(max-width:1024px){
+      :root{--sidebar-width:68px;}
+      .sidebar-appname,.sidebar-tagline,.nav-section-label,.nav-item span,.sidebar-alert,.user-info{display:none;}
+      .nav-item{justify-content:center;padding:12px;}
+      .nav-badge{position:absolute;top:6px;right:6px;}
+      .nav-item{position:relative;}
+    }
+    @media(max-width:768px){
+      .main-wrapper{margin-left:0;}
+      .sidebar{transform:translateX(-100%);}
+      .page-content{padding:16px;}
+      .kpi-grid{grid-template-columns:repeat(2,1fr);}
+      .card-grid{grid-template-columns:1fr;}
+      .analytics-grid{grid-template-columns:1fr;}
+      .form-row{grid-template-columns:1fr;}
+      .topbar{padding:0 16px;}
+    }
+    .entity-card:nth-child(1){animation-delay:0ms;}
+    .entity-card:nth-child(2){animation-delay:50ms;}
+    .entity-card:nth-child(3){animation-delay:100ms;}
+    .entity-card:nth-child(4){animation-delay:150ms;}
+    .entity-card:nth-child(5){animation-delay:200ms;}
+    .entity-card:nth-child(6){animation-delay:250ms;}
+    .kpi-card:nth-child(1){animation-delay:0ms;}
+    .kpi-card:nth-child(2){animation-delay:30ms;}
+    .kpi-card:nth-child(3){animation-delay:60ms;}
+    .kpi-card:nth-child(4){animation-delay:90ms;}
+    .kpi-card:nth-child(5){animation-delay:120ms;}
+    .kpi-card:nth-child(6){animation-delay:150ms;}
+    .kpi-card:nth-child(7){animation-delay:180ms;}
+    .kpi-card:nth-child(8){animation-delay:210ms;}
+    .kpi-card:nth-child(9){animation-delay:240ms;}
+    .kpi-card:nth-child(10){animation-delay:270ms;}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo-wrap">
+      <img src="https://www.aiswindows.com/assets/images/ais-windows-logo.svg" alt="AIS" class="login-logo-img">
+      <div class="login-title">AIS Command Center</div>
+      <div class="login-sub">Enterprise Operations Platform</div>
+    </div>
+    <div class="login-field">
+      <label>Email Address</label>
+      <input type="email" id="loginUsername" placeholder="your@email.com" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-login" id="loginButton">Sign In →</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="https://www.aiswindows.com/assets/images/ais-windows-logo.svg" alt="AIS">
+          <div class="sidebar-appname">Command Center</div>
+          <div class="sidebar-tagline">Showrooms · Dealers · Ops</div>
+        </div>
+      </div>
+      <div class="sidebar-alert" id="sidebarAlert">
+        <strong>⚠ Critical Delays</strong>
+        <span id="sidebarAlertText"></span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operations</div>
+        <button class="nav-item active" id="nav-dashboard">
+          <i class="nav-icon fas fa-th-large"></i><span>Showrooms</span>
+          <span class="nav-badge" id="navBadgeShowrooms" style="display:none"></span>
+        </button>
+        <button class="nav-item" id="nav-dealers">
+          <i class="nav-icon fas fa-users"></i><span>Dealers</span>
+          <span class="nav-badge" id="navBadgeDealers" style="display:none"></span>
+        </button>
+        <div class="nav-section-label">Intelligence</div>
+        <button class="nav-item" id="nav-analytics">
+          <i class="nav-icon fas fa-chart-bar"></i><span>Analytics</span>
+        </button>
+        <div class="nav-section-label">Tools</div>
+        <button class="nav-item" id="exportExcelBtn">
+          <i class="nav-icon fas fa-file-excel"></i><span>Export Excel</span>
+        </button>
+        <button class="nav-item" id="exportPdfBtn">
+          <i class="nav-icon fas fa-file-pdf"></i><span>Export PDF</span>
+        </button>
+        <button class="nav-item" id="backupDataBtn">
+          <i class="nav-icon fas fa-database"></i><span>Backup Data</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-info">
+            <div class="user-name" id="userName">User</div>
+            <div class="user-role" id="userRoleText">Loading…</div>
+          </div>
+          <button class="btn-logout" id="logoutBtn" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div>
+            <div class="page-title" id="pageTitle">Showrooms</div>
+            <div class="page-breadcrumb"><span>AIS Command Center</span><i class="fas fa-chevron-right" style="font-size:0.6rem"></i><span id="pageBreadcrumb">Showroom Execution</span></div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="role-chip" id="roleBadge"></div>
+          <button class="topbar-btn primary" id="addEntityBtn"><i class="fas fa-plus"></i> Add Showroom</button>
+        </div>
+      </header>
+
+      <main class="page-content" id="mainContent">
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboardView">
+          <div class="alert-banner" id="alertBanner">
+            <div class="alert-icon"></div>
+            <div class="alert-content">
+              <div class="alert-title" id="alertTitle"></div>
+              <div class="alert-desc" id="alertDesc"></div>
+            </div>
+            <button class="alert-dismiss" id="dismissAlertBtn">&times;</button>
+          </div>
+          <div class="kpi-grid" id="kpiGrid"></div>
+          <div class="filter-bar">
+            <div class="filter-pill">
+              <i class="fas fa-user-tie"></i>
+              <select id="filterRM"><option value="all">All RMs</option></select>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-pill filter-search">
+              <i class="fas fa-search"></i>
+              <input type="text" id="globalSearch" placeholder="Search showrooms, city, RM…">
+            </div>
+            <button class="btn btn-outline btn-sm" id="resetFiltersBtn"><i class="fas fa-rotate-left"></i> Reset</button>
+          </div>
+          <div class="section-header">
+            <div><span class="section-title">Active Showrooms</span><span class="section-count" id="showroomCount"></span></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" id="sortBtn"><i class="fas fa-sort"></i> Sort: Delay</button>
+            </div>
+          </div>
+          <div class="card-grid" id="showroomGrid"></div>
+        </div>
+
+        <!-- ANALYTICS VIEW -->
+        <div id="analyticsView" style="display:none">
+          <div class="kpi-grid" id="analyticsKpiGrid"></div>
+          <div class="analytics-grid">
+            <div class="chart-card">
+              <div class="chart-title"><i class="fas fa-filter" style="color:var(--blue-500)"></i> Dealer Funnel by Stage</div>
+              <canvas id="funnelChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title"><i class="fas fa-chart-line" style="color:var(--emerald-500)"></i> Showroom Completion Rate</div>
+              <canvas id="trendChart"></canvas>
+            </div>
+          </div>
+          <div class="analytics-grid">
+            <div class="chart-card">
+              <div class="chart-title"><i class="fas fa-trophy" style="color:var(--amber-500)"></i> RM Leaderboard</div>
+              <div id="rmLeaderboard"></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title"><i class="fas fa-clock" style="color:var(--red-500)"></i> Delay Distribution</div>
+              <div id="delayDistribution" style="padding-top:12px;"></div>
+            </div>
+          </div>
+          <div class="chart-card" style="margin-bottom:20px">
+            <div class="chart-title"><i class="fas fa-file-alt" style="color:var(--purple-500)"></i> Document Completion by Stage</div>
+            <canvas id="docsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- DEALER VIEW -->
+        <div id="dealerView" style="display:none">
+          <div class="alert-banner" id="dealerAlertBanner">
+            <div class="alert-icon"></div>
+            <div class="alert-content">
+              <div class="alert-title" id="dealerAlertTitle"></div>
+              <div class="alert-desc" id="dealerAlertDesc"></div>
+            </div>
+            <button class="alert-dismiss" id="dismissDealerAlertBtn">&times;</button>
+          </div>
+          <div class="kpi-grid" id="dealerKpiGrid"></div>
+          <div class="filter-bar">
+            <div class="filter-pill">
+              <i class="fas fa-tag"></i>
+              <select id="dealerFilterStatus">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="delayed">Delayed</option>
+                <option value="dropped">Dropped</option>
+              </select>
+            </div>
+            <div class="filter-pill">
+              <i class="fas fa-layer-group"></i>
+              <select id="dealerFilterStage">
+                <option value="all">All Stages</option>
+                <option value="Interested">Interested</option>
+                <option value="Shortlisted">Shortlisted</option>
+                <option value="CFT Selected">CFT Selected</option>
+                <option value="Documentation">Documentation</option>
+                <option value="Onboarded">Onboarded</option>
+              </select>
+            </div>
+            <div class="filter-pill">
+              <i class="fas fa-user-tie"></i>
+              <select id="dealerFilterRM"><option value="all">All RMs</option></select>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-pill filter-search">
+              <i class="fas fa-search"></i>
+              <input type="text" id="dealerSearch" placeholder="Search dealers…">
+            </div>
+            <button class="btn btn-outline btn-sm" id="resetDealerFiltersBtn"><i class="fas fa-rotate-left"></i> Reset</button>
+          </div>
+          <div class="section-header">
+            <div><span class="section-title">Dealer Onboarding</span><span class="section-count" id="dealerCount"></span></div>
+          </div>
+          <div class="card-grid" id="dealerGrid"></div>
+        </div>
+
+      </main>
+      <footer class="app-footer">Powered with ❤️ by <strong>Sanju G</strong> · AIS Windows Command Center v3.0</footer>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div id="showroomDetailModal" class="modal-overlay">
+  <div class="modal-container" style="max-width:1020px">
+    <div class="modal-header">
+      <div class="modal-title" id="showroomDetailTitle"></div>
+      <button class="modal-close" data-modal="showroomDetailModal">&times;</button>
+    </div>
+    <div class="modal-body" id="showroomDetailContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" id="showroomEditBtn" style="display:none"><i class="fas fa-pen"></i> Edit</button>
+      <button class="btn btn-danger btn-sm" id="showroomDeleteBtn" style="display:none"><i class="fas fa-trash"></i> Delete</button>
+      <button class="btn btn-outline btn-sm" data-modal="showroomDetailModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="dealerDetailModal" class="modal-overlay">
+  <div class="modal-container" style="max-width:720px">
+    <div class="modal-header">
+      <div class="modal-title" id="detailDealerName"></div>
+      <button class="modal-close" data-modal="dealerDetailModal">&times;</button>
+    </div>
+    <div class="modal-body" id="dealerDetailContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" id="dealerEditBtn" style="display:none"><i class="fas fa-pen"></i> Edit</button>
+      <button class="btn btn-danger btn-sm" id="dealerDeleteBtn" style="display:none"><i class="fas fa-trash"></i> Delete</button>
+      <button class="btn btn-outline btn-sm" data-modal="dealerDetailModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="addShowroomModal" class="modal-overlay">
+  <div class="modal-container" style="max-width:520px">
+    <div class="modal-header"><div class="modal-title">+ New Showroom</div><button class="modal-close" data-modal="addShowroomModal">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Showroom Name</label><input type="text" id="newShowroomName" class="form-input" placeholder="e.g. Delhi South Showroom"></div>
+        <div class="form-group"><label class="form-label">City</label><input type="text" id="newShowroomCity" class="form-input" placeholder="e.g. New Delhi"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">RM Name</label><input type="text" id="newShowroomRM" class="form-input" placeholder="Assigned RM"></div>
+        <div class="form-group"><label class="form-label">Start Date</label><input type="date" id="newShowroomStart" class="form-input"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal="addShowroomModal">Cancel</button>
+      <button class="btn btn-primary" id="confirmAddShowroomBtn"><i class="fas fa-plus"></i> Create Showroom</button>
+    </div>
+  </div>
+</div>
+
+<div id="addDealerModal" class="modal-overlay">
+  <div class="modal-container" style="max-width:520px">
+    <div class="modal-header"><div class="modal-title">+ New Dealer</div><button class="modal-close" data-modal="addDealerModal">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Dealer Name</label><input type="text" id="newDealerName" class="form-input" placeholder="Dealer / Business Name"></div>
+        <div class="form-group"><label class="form-label">City</label><input type="text" id="newDealerCity" class="form-input" placeholder="City"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">RM Name</label><input type="text" id="newDealerRM" class="form-input" placeholder="Assigned RM"></div>
+        <div class="form-group"><label class="form-label">Start Date</label><input type="date" id="newDealerStart" class="form-input"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal="addDealerModal">Cancel</button>
+      <button class="btn btn-primary" id="confirmAddDealerBtn"><i class="fas fa-plus"></i> Create Dealer</button>
+    </div>
+  </div>
+</div>
+
+<div id="edit-showroom-modal" class="modal-overlay">
+  <div class="modal-container" style="max-width:520px">
+    <div class="modal-header"><div class="modal-title">Edit Showroom</div><button class="modal-close" data-modal="edit-showroom-modal">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" id="edit-showroom-name" class="form-input"></div>
+        <div class="form-group"><label class="form-label">City</label><input type="text" id="edit-showroom-city" class="form-input"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">RM</label><input type="text" id="edit-showroom-rm" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Start Date</label><input type="date" id="edit-showroom-start" class="form-input"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal="edit-showroom-modal">Cancel</button>
+      <button class="btn btn-primary" id="saveEditShowroomBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div id="edit-dealer-modal" class="modal-overlay">
+  <div class="modal-container" style="max-width:520px">
+    <div class="modal-header"><div class="modal-title">Edit Dealer</div><button class="modal-close" data-modal="edit-dealer-modal">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" id="edit-dealer-name" class="form-input"></div>
+        <div class="form-group"><label class="form-label">City</label><input type="text" id="edit-dealer-city" class="form-input"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">RM</label><input type="text" id="edit-dealer-rm" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Start Date</label><input type="date" id="edit-dealer-start" class="form-input"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal="edit-dealer-modal">Cancel</button>
+      <button class="btn btn-primary" id="saveEditDealerBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, deleteDoc, onSnapshot, addDoc, updateDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDav3rI7fTr8KrXYxvnz5LB82CgjRq4v20",
+  authDomain: "ais-showroom-dashboard.firebaseapp.com",
+  projectId: "ais-showroom-dashboard",
+  storageBucket: "ais-showroom-dashboard.firebasestorage.app",
+  messagingSenderId: "175667492150",
+  appId: "1:175667492150:web:cb124eb267b4689e6a2f97"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const PHASES_CONFIG = [
+  { id:'dim',      name:'Dimensions Submission',    days:5  },
+  { id:'cad',      name:'CAD Preparation',           days:12 },
+  { id:'plan',     name:'Planning & Order Loading',  days:15 },
+  { id:'civil',    name:'Structure & Civil Work',    days:30 },
+  { id:'interior', name:'Interior Development',      days:50 },
+  { id:'brand',    name:'Branding & Display Setup',  days:55 },
+  { id:'delivery', name:'Window Delivery',           days:65 },
+  { id:'window',   name:'Window Installation',       days:80 },
+  { id:'launch',   name:'Final Handover / Launch',   days:90 }
+];
+const SHOWROOM_IDEAL_DAYS = 90;
+const DEALER_IDEAL_DAYS   = 22;
+// 🔥 UPDATED: Added rejected stages
+const DEALER_STAGES = ['Interested','Shortlisted','CFT Selected','Documentation','Onboarded','Shortlist-reject','CFT-Reject'];
+// 🔥 UPDATED: Target days for new stages
+const DEALER_STAGE_TARGETS = { 'Interested':0,'Shortlisted':3,'CFT Selected':8,'Documentation':15,'Onboarded':22,'Rejected – Selection':0,'Rejected – CFT':0 };
+const DOC_KEYS   = ['securityDeposit','crmCharges','agreement','gst','pan','aadhaar','bankDetails','cheque','passportPhotos','companyRegistration','spaceFinalized'];
+const DOC_LABELS = { securityDeposit:'Security Deposit',crmCharges:'CRM Charges',agreement:'Agreement',gst:'GST Certificate',pan:'PAN Card',aadhaar:'Aadhaar',bankDetails:'Bank Details',cheque:'Cheque',passportPhotos:'Passport Photos',companyRegistration:'Company Registration',spaceFinalized:'Space Finalized' };
+
+let state = { showrooms: [], dealers: [] };
+let charts = { funnel: null, trend: null, docs: null };
+let currentView = 'dashboard';
+let currentEditShowroomId = null;
+let currentEditDealerId = null;
+let currentShowroomIdForDetail = null;
+let currentDealerIdForDetail = null;
+let userRole = null;
+let currentUserId = null;
+let currentUserEmail = null;
+let realtimeUnsubscribers = [];
+let isLoading = false;
+let sortByDelay = true;
+let _searchDebounceTimer = null;
+
+function esc(str) {
+  if (str == null) return '';
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m] || m));
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const parsed = new Date(d);
+  if (isNaN(parsed)) return '—';
+  return parsed.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+function normName(v) { return (v || '').trim().toLowerCase().replace(/\s+/g,' '); }
+function isAdmin() { return userRole === 'admin'; }
+function avg(arr) { return arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : 0; }
+
+function showToast(msg, type='info') {
+  const icons  = { success:'✓', error:'✕', warning:'⚠', info:'ℹ' };
+  const colors = { success:'#059669', error:'#DC2626', warning:'#D97706', info:'#2563EB' };
+  const container = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.borderLeft = `4px solid ${colors[type] || colors.info}`;
+  t.innerHTML = `<span class="toast-icon" style="color:${colors[type]||colors.info}">${icons[type]||icons.info}</span>${esc(msg)}`;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 3600);
+}
+
+function parseFirebaseError(error, fallback) {
+  const m = {
+    'auth/invalid-credential':'Invalid email or password.',
+    'auth/invalid-email':'Enter a valid email.',
+    'auth/missing-password':'Enter your password.',
+    'auth/too-many-requests':'Too many attempts. Try later.',
+    'permission-denied':'No permission for this action.',
+    'unavailable':'Service temporarily unavailable.'
+  };
+  return m[error?.code] || fallback;
+}
+
+function debounce(fn, ms) {
+  return function(...args) {
+    clearTimeout(_searchDebounceTimer);
+    _searchDebounceTimer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+// 🆕 NEW: Helper to determine if entity is completed
+function isCompleted(entity, type) {
+  if (type === 'showroom') {
+    return !!entity.data?.launch?.actualDate;
+  } else if (type === 'dealer') {
+    return entity.currentStage === 'Onboarded' || entity.status === 'Completed';
+  }
+  return false;
+}
+
+function calcShowroomStats(s) {
+  if (!s || !s.startDate) return { pct:0, avgDelay:0, totalDelay:0, maxDelay:0, delayedPhases:[], completedPhases:0 };
+  const start = new Date(s.startDate);
+  const today = new Date();
+  let comp=0, totalDelay=0, delayCount=0, maxDelay=0;
+  const delayedPhases = [];
+  PHASES_CONFIG.forEach(p => {
+    const target = new Date(start);
+    target.setDate(start.getDate() + p.days);
+    const actualDate = s.data?.[p.id]?.actualDate ? new Date(s.data[p.id].actualDate) : null;
+    if (actualDate) {
+      comp++;
+      const diff = Math.ceil((actualDate - target) / 86400000);
+      if (diff > 0) { totalDelay += diff; delayCount++; maxDelay = Math.max(maxDelay, diff); delayedPhases.push({ phase:p.name, days:diff }); }
+    } else {
+      const diff = Math.ceil((today - target) / 86400000);
+      if (diff > 0) { totalDelay += diff; delayCount++; maxDelay = Math.max(maxDelay, diff); delayedPhases.push({ phase:p.name, days:diff }); }
+    }
+  });
+  delayedPhases.sort((a,b) => b.days - a.days);
+  return { pct: Math.round((comp / PHASES_CONFIG.length) * 100), avgDelay: delayCount ? Math.round(totalDelay/delayCount):0, totalDelay, maxDelay, delayedPhases, completedPhases: comp };
+}
+
+function calcShowroomDayMetrics(s) {
+  const idealDays = SHOWROOM_IDEAL_DAYS;
+  if (!s || !s.startDate) return { idealDays, actualDays:0, forecastDays:idealDays, delayDays:0 };
+  const start = new Date(s.startDate);
+  const today = new Date();
+  const actualDays = Math.max(0, Math.floor((today - start) / 86400000));
+  const st = calcShowroomStats(s);
+  const pct = st.pct;
+  let forecastDays;
+  if (pct >= 100 || isCompleted(s, 'showroom')) {
+    forecastDays = actualDays;
+  } else if (pct > 0 && actualDays > 0) {
+    forecastDays = Math.round(actualDays / (pct / 100));
+  } else {
+    forecastDays = idealDays;
+  }
+  const delayDays = Math.max(0, actualDays - idealDays);
+  return { idealDays, actualDays, forecastDays, delayDays };
+}
+
+// 🔥 UPDATED: calcDealerTimeline handles rejected stages
+function calcDealerTimeline(d) {
+  if (!d || !d.startDate) return { delayDays:0, isDelayed:false, level:'normal', daysElapsed:0 };
+  const rejectedStages = ['Rejected – Selection', 'Rejected – CFT'];
+  if (rejectedStages.includes(d.currentStage)) {
+    return { delayDays: 0, isDelayed: false, level: 'normal', daysElapsed: 0 };
+  }
+  const start = new Date(d.startDate);
+  const daysElapsed = Math.max(0, Math.floor((new Date() - start) / 86400000));
+  const stageTarget = DEALER_STAGE_TARGETS[d.currentStage || 'Interested'] || 0;
+  const delayDays = Math.max(0, daysElapsed - stageTarget);
+  let level = 'normal';
+  if (delayDays >= 10) level = 'critical';
+  else if (delayDays >= 6) level = 'warning';
+  return { delayDays, isDelayed: delayDays >= 6, level, daysElapsed };
+}
+
+// 🔥 UPDATED: calcDealerDayMetrics handles rejected and completed
+function calcDealerDayMetrics(d) {
+  const idealDays = DEALER_IDEAL_DAYS;
+  if (!d || !d.startDate) return { idealDays, actualDays:0, forecastDays:idealDays, delayDays:0 };
+  const start = new Date(d.startDate);
+  const actualDays = Math.max(0, Math.floor((new Date() - start) / 86400000));
+  const rejectedStages = ['Rejected – Selection', 'Rejected – CFT'];
+  if (rejectedStages.includes(d.currentStage)) {
+    return { idealDays, actualDays, forecastDays: actualDays, delayDays: Math.max(0, actualDays - idealDays) };
+  }
+  const stageIdx = Math.max(0, DEALER_STAGES.indexOf(d.currentStage || 'Interested'));
+  const progress = (stageIdx + 1) / DEALER_STAGES.length;
+  let forecastDays;
+  if (d.status === 'Completed' || d.currentStage === 'Onboarded' || isCompleted(d, 'dealer')) {
+    forecastDays = actualDays;
+  } else if (progress > 0 && actualDays > 0) {
+    forecastDays = Math.round(actualDays / progress);
+  } else {
+    forecastDays = idealDays;
+  }
+  const delayDays = Math.max(0, actualDays - idealDays);
+  return { idealDays, actualDays, forecastDays, delayDays };
+}
+
+function calculateShowroomMetrics(showrooms) {
+  if (!showrooms.length) return { total:0, completed:0, delayed:0, critical:0, avgCompletion:0, avgIdealDays:0, avgActualDays:0, avgForecastDays:0 };
+  const stats = showrooms.map(s => calcShowroomStats(s));
+  const days = showrooms.map(s => calcShowroomDayMetrics(s));
+  return {
+    total: showrooms.length,
+    completed: stats.filter(s => s.pct === 100 || isCompleted(s, 'showroom')).length,
+    delayed: stats.filter(s => s.maxDelay > 0 && !isCompleted(s, 'showroom')).length,
+    critical: stats.filter(s => s.maxDelay >= 10 && !isCompleted(s, 'showroom')).length,
+    avgCompletion: avg(stats.map(s => s.pct)),
+    avgIdealDays: avg(days.map(d => d.idealDays)),
+    avgActualDays: avg(days.map(d => d.actualDays)),
+    avgForecastDays: avg(days.map(d => d.forecastDays))
+  };
+}
+
+// 🔥 UPDATED: calculateDealerMetrics excludes rejected from active/completed
+function calculateDealerMetrics(dealers) {
+  if (!dealers.length) return { total:0, active:0, completed:0, delayed:0, critical:0, avgIdealDays:0, avgActualDays:0, avgForecastDays:0 };
+  const rejectedStages = ['Rejected – Selection', 'Rejected – CFT'];
+  const timelines = dealers.map(d => calcDealerTimeline(d));
+  const days = dealers.map(d => calcDealerDayMetrics(d));
+  const activeDealers = dealers.filter(d => d.status === 'Active' && !rejectedStages.includes(d.currentStage));
+  const completedDealers = dealers.filter(d => d.status === 'Completed' || d.currentStage === 'Onboarded');
+  const delayedDealers = dealers.filter(d => calcDealerTimeline(d).isDelayed && !rejectedStages.includes(d.currentStage));
+  const criticalDealers = dealers.filter(d => calcDealerTimeline(d).level === 'critical' && !rejectedStages.includes(d.currentStage));
+  return {
+    total: dealers.length,
+    active: activeDealers.length,
+    completed: completedDealers.length,
+    delayed: delayedDealers.length,
+    critical: criticalDealers.length,
+    avgIdealDays: avg(days.map(d => d.idealDays)),
+    avgActualDays: avg(days.map(d => d.actualDays)),
+    avgForecastDays: avg(days.map(d => d.forecastDays))
+  };
+}
+
+function docProgress(docObj) {
+  return Math.round((DOC_KEYS.filter(k => docObj?.[k]).length / DOC_KEYS.length) * 100);
+}
+
+function hasDuplicateShowroomName(name, ignoreId=null) {
+  return state.showrooms.some(s => s.id !== ignoreId && normName(s.name) === normName(name));
+}
+
+function getFilteredShowrooms() {
+  const search = (document.getElementById('globalSearch')?.value || '').toLowerCase().trim();
+  const rmFilter = document.getElementById('filterRM')?.value || 'all';
+  let list = [...state.showrooms];
+  if (search) {
+    list = list.filter(s => (s.name || '').toLowerCase().includes(search) || (s.city || '').toLowerCase().includes(search) || (s.rm || '').toLowerCase().includes(search));
+  }
+  if (rmFilter !== 'all') {
+    list = list.filter(s => (s.rm || '') === rmFilter);
+  }
+  if (sortByDelay) {
+    list.sort((a,b) => calcShowroomStats(b).maxDelay - calcShowroomStats(a).maxDelay);
+  } else {
+    list.sort((a,b) => (a.name || '').localeCompare(b.name || ''));
+  }
+  return list;
+}
+
+function getFilteredDealers() {
+  const status = document.getElementById('dealerFilterStatus')?.value || 'all';
+  const stage = document.getElementById('dealerFilterStage')?.value || 'all';
+  const rm = document.getElementById('dealerFilterRM')?.value || 'all';
+  const search = (document.getElementById('dealerSearch')?.value || '').toLowerCase().trim();
+  let list = [...state.dealers];
+  if (status === 'delayed') {
+    list = list.filter(d => calcDealerTimeline(d).isDelayed);
+  } else if (status !== 'all') {
+    list = list.filter(d => (d.status || '').toLowerCase() === status);
+  }
+  if (stage !== 'all') {
+    list = list.filter(d => (d.currentStage || 'Interested') === stage);
+  }
+  if (rm !== 'all') {
+    list = list.filter(d => (d.rm || '') === rm);
+  }
+  if (search) {
+    list = list.filter(d => (d.name || '').toLowerCase().includes(search) || (d.city || '').toLowerCase().includes(search) || (d.rm || '').toLowerCase().includes(search));
+  }
+  return list;
+}
+
+function kpiCard(label, val, icon, accent, iconBg, trend=null, delay=0) {
+  return `<div class="kpi-card" style="--kpi-accent:${accent};--kpi-icon-bg:${iconBg};animation-delay:${delay}ms">
+    <div class="kpi-icon-wrap"><i class="fas ${icon}"></i></div>
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-value">${val}</div>
+    ${trend ? `<div class="kpi-trend ${trend.cls}"><i class="fas fa-${trend.cls==='up'?'arrow-trend-up':trend.cls==='down'?'arrow-trend-down':'minus'}"></i>${trend.text}</div>` : ''}
+  </div>`;
+}
+
+function renderShowroomKpis(filtered) {
+  const allMetrics = calculateShowroomMetrics(state.showrooms);
+  const filteredMetrics = calculateShowroomMetrics(filtered);
+  const isFiltered = filtered.length !== state.showrooms.length;
+  const m = isFiltered ? filteredMetrics : allMetrics;
+  const cards = [
+    kpiCard('Total Showrooms', m.total, 'fa-building', 'var(--blue-500)', 'var(--blue-50)', null, 0),
+    kpiCard('Avg Completion', `${m.avgCompletion}%`,'fa-circle-check', 'var(--emerald-500)','var(--emerald-50)', m.avgCompletion > 70 ? {cls:'up',text:'On track'} : {cls:'warn',text:'Behind schedule'}, 30),
+    kpiCard('Delayed', m.delayed, 'fa-triangle-exclamation', 'var(--amber-500)', 'var(--amber-50)', m.critical > 0 ? {cls:'down',text:`${m.critical} critical`} : null, 60),
+    kpiCard('Critical Risk', m.critical, 'fa-circle-exclamation', 'var(--red-600)', 'var(--red-50)', m.critical > 0 ? {cls:'down',text:'Escalate now'} : {cls:'up',text:'All clear'}, 90),
+    `<div class="kpi-section-label">Schedule Performance${isFiltered ? ' (Filtered)' : ''}</div>`,
+    kpiCard('Avg Ideal Days', `${m.avgIdealDays}d`, 'fa-calendar-check', 'var(--purple-500)', 'var(--purple-100)', {cls:'up',text:'Plan target'}, 120),
+    kpiCard('Avg Actual Days', `${m.avgActualDays}d`,'fa-calendar-day', m.avgActualDays > m.avgIdealDays ? 'var(--red-600)' : 'var(--emerald-600)', m.avgActualDays > m.avgIdealDays ? 'var(--red-50)' : 'var(--emerald-50)', m.avgActualDays > m.avgIdealDays ? {cls:'down',text:`${m.avgActualDays - m.avgIdealDays}d over plan`} : {cls:'up',text:'Within plan'}, 150),
+    kpiCard('Avg Forecast Days', `${m.avgForecastDays}d`,'fa-chart-line', m.avgForecastDays > m.avgIdealDays ? 'var(--amber-600)' : 'var(--emerald-600)', m.avgForecastDays > m.avgIdealDays ? 'var(--amber-50)' : 'var(--emerald-50)', {cls: m.avgForecastDays <= m.avgIdealDays ? 'up' : 'warn', text:`Est. completion`}, 180),
+  ];
+  document.getElementById('kpiGrid').innerHTML = cards.join('');
+}
+
+function renderDealerKpis(filtered) {
+  const allMetrics = calculateDealerMetrics(state.dealers);
+  const filteredMetrics = calculateDealerMetrics(filtered);
+  const isFiltered = filtered.length !== state.dealers.length;
+  const m = isFiltered ? filteredMetrics : allMetrics;
+  const convBase = allMetrics.active + allMetrics.completed;
+  const convRate = convBase ? Math.round((allMetrics.completed / convBase) * 100) : 0;
+  const cards = [
+    kpiCard('Total Dealers', allMetrics.total, 'fa-users', 'var(--blue-500)', 'var(--blue-50)', null, 0),
+    kpiCard('Active', allMetrics.active, 'fa-circle-play', 'var(--purple-500)', 'var(--purple-100)', null, 30),
+    kpiCard('Completed', allMetrics.completed, 'fa-circle-check', 'var(--emerald-600)', 'var(--emerald-50)', {cls:'up',text:`${convRate}% rate`}, 60),
+    kpiCard('Delayed', allMetrics.delayed, 'fa-hourglass-half', allMetrics.delayed > 0 ? 'var(--red-600)' : 'var(--emerald-600)', allMetrics.delayed > 0 ? 'var(--red-50)' : 'var(--emerald-50)', allMetrics.critical > 0 ? {cls:'down',text:`${allMetrics.critical} critical`} : allMetrics.delayed > 0 ? {cls:'warn',text:'Monitor'} : {cls:'up',text:'All on time'}, 90),
+    `<div class="kpi-section-label">Schedule Performance${isFiltered ? ' (Filtered)' : ''}</div>`,
+    kpiCard('Avg Ideal Days', `${m.avgIdealDays}d`, 'fa-calendar-check', 'var(--purple-500)', 'var(--purple-100)', {cls:'up',text:'22d target'}, 120),
+    kpiCard('Avg Actual Days', `${m.avgActualDays}d`,'fa-calendar-day', m.avgActualDays > m.avgIdealDays ? 'var(--red-600)' : 'var(--emerald-600)', m.avgActualDays > m.avgIdealDays ? 'var(--red-50)' : 'var(--emerald-50)', m.avgActualDays > m.avgIdealDays ? {cls:'down',text:`${m.avgActualDays - m.avgIdealDays}d over`} : {cls:'up',text:'Within plan'}, 150),
+    kpiCard('Avg Forecast Days', `${m.avgForecastDays}d`,'fa-chart-line', m.avgForecastDays > m.avgIdealDays ? 'var(--amber-600)' : 'var(--emerald-600)', m.avgForecastDays > m.avgIdealDays ? 'var(--amber-50)' : 'var(--emerald-50)', {cls: m.avgForecastDays <= m.avgIdealDays ? 'up' : 'warn', text:'Est. completion'}, 180),
+  ];
+  document.getElementById('dealerKpiGrid').innerHTML = cards.join('');
+}
+
+// 🔥 UPDATED: buildShowroomCard with completed override
+function buildShowroomCard(s) {
+  const st = calcShowroomStats(s);
+  const days = calcShowroomDayMetrics(s);
+  const isLaunched = !!s.data?.launch?.actualDate;
+  
+  let riskClass = '', chipClass = 'chip-success', chipTxt = 'On Track';
+  if (isLaunched) {
+    riskClass = '';
+    chipClass = 'chip-success';
+    chipTxt = 'Completed';
+  } else if (st.maxDelay >= 10) {
+    riskClass = 'risk-critical';
+    chipClass = 'chip-critical';
+    chipTxt = 'Critical';
+  } else if (st.maxDelay >= 6) {
+    riskClass = 'risk-warning';
+    chipClass = 'chip-warning';
+    chipTxt = 'Delayed';
+  } else if (st.maxDelay > 0) {
+    chipClass = 'chip-warning';
+    chipTxt = 'Minor Delay';
+  }
+  
+  const progClass = (st.maxDelay >= 10 && !isLaunched) ? 'danger' : (st.maxDelay >= 6 && !isLaunched) ? 'warning' : (st.pct === 100 || isLaunched) ? 'success' : '';
+  const worstPhase = st.delayedPhases[0];
+  let nbaClass = 'ok', nbaIcon = 'fa-check-circle', nbaText = 'All phases on schedule';
+  if (isLaunched) {
+    const delayInfo = days.delayDays > 0 ? `Delayed by ${days.delayDays} days` : 'On time';
+    nbaClass = 'ok';
+    nbaIcon = 'fa-flag-checkered';
+    nbaText = `Launched – Completed in ${days.actualDays} days (${delayInfo})`;
+  } else if (st.maxDelay >= 10) {
+    nbaClass = 'critical';
+    nbaIcon = 'fa-circle-exclamation';
+    nbaText = `Escalate: ${worstPhase?.phase} is ${worstPhase?.days}d overdue`;
+  } else if (st.maxDelay >= 6) {
+    nbaClass = 'warning';
+    nbaIcon = 'fa-triangle-exclamation';
+    nbaText = `Follow up: ${worstPhase?.phase} delayed ${worstPhase?.days}d`;
+  } else if (st.maxDelay > 0) {
+    nbaClass = 'warning';
+    nbaIcon = 'fa-clock';
+    nbaText = `Monitor: ${worstPhase?.phase} (${worstPhase?.days}d)`;
+  }
+  
+  const actualColor = (days.actualDays > days.idealDays && !isLaunched) ? 'red' : '';
+  const forecastColor = (days.forecastDays > days.idealDays && !isLaunched) ? 'amber' : 'green';
+  
+  return `<div class="entity-card ${riskClass}">
+    <div class="entity-card-top">
+      <div class="entity-header">
+        <div>
+          <div class="entity-name">${esc(s.name)}</div>
+          <div class="entity-meta">
+            <span class="entity-meta-item"><i class="fas fa-location-dot"></i>${esc(s.city || '—')}</span>
+            <span class="entity-meta-item"><i class="fas fa-user-tie"></i>${esc(s.rm || 'Unassigned')}</span>
+            <span class="entity-meta-item"><i class="fas fa-calendar"></i>${fmtDate(s.startDate)}</span>
+          </div>
+        </div>
+        <span class="chip ${chipClass}" title="${isLaunched ? (days.delayDays > 0 ? `Delayed by ${days.delayDays} days` : 'On time') : ''}">${chipTxt}</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Phase Completion</span><span style="font-family:'DM Mono',monospace;font-weight:600">${st.pct}%</span></div>
+        <div class="progress-track"><div class="progress-fill ${progClass}" style="width:${st.pct}%"></div></div>
+      </div>
+    </div>
+    <div class="entity-card-body">
+      <div class="stats-row">
+        <div class="stat-cell"><div class="stat-label">Phases</div><div class="stat-val">${st.completedPhases}/${PHASES_CONFIG.length}</div></div>
+        <div class="stat-cell"><div class="stat-label">Max Delay</div><div class="stat-val ${st.maxDelay >= 10 && !isLaunched ? 'red' : st.maxDelay > 0 && !isLaunched ? 'amber' : ''}">${st.maxDelay}d</div></div>
+        <div class="stat-cell"><div class="stat-label">Total Lag</div><div class="stat-val ${st.totalDelay > 0 && !isLaunched ? 'amber' : ''}">${st.totalDelay}d</div></div>
+      </div>
+      <div class="stats-row-label">Schedule Days</div>
+      <div class="stats-row">
+        <div class="stat-cell"><div class="stat-label">Ideal</div><div class="stat-val">${days.idealDays}d</div></div>
+        <div class="stat-cell"><div class="stat-label">Actual</div><div class="stat-val ${actualColor}">${days.actualDays}d</div></div>
+        <div class="stat-cell"><div class="stat-label">Forecast</div><div class="stat-val ${forecastColor}">${days.forecastDays}d</div></div>
+      </div>
+      <div class="nba-strip ${nbaClass}">
+        <i class="fas ${nbaIcon}"></i>
+        <span><strong>Next Action:</strong> ${nbaText}</span>
+      </div>
+    </div>
+    <div class="entity-card-footer">
+      <button class="btn btn-primary btn-sm view-showroom-detail" data-id="${s.id}"><i class="fas fa-table-list"></i> Phase Tracker</button>
+    </div>
+  </div>`;
+}
+
+// 🔥 UPDATED: buildDealerCard with priority logic
+function buildDealerCard(d) {
+  const tl = calcDealerTimeline(d);
+  const days = calcDealerDayMetrics(d);
+  const dp = docProgress(d.documents);
+  const missing = DOC_KEYS.filter(k => !d.documents?.[k]).length;
+  const stageIdx = DEALER_STAGES.indexOf(d.currentStage || 'Interested');
+  const isOnboarded = (d.currentStage === 'Onboarded');
+  const isRejected = (d.currentStage === 'Rejected – Selection' || d.currentStage === 'Rejected – CFT');
+  
+  let riskClass = '', chipClass = 'chip-success', chipTxt = 'On Track';
+  if (isOnboarded || d.status === 'Completed') {
+    riskClass = '';
+    chipClass = 'chip-success';
+    chipTxt = 'Completed';
+  } else if (isRejected) {
+    riskClass = 'risk-critical';
+    chipClass = 'chip-critical';
+    chipTxt = d.currentStage === 'Rejected – Selection' ? 'Rejected (Selection)' : 'Rejected (CFT)';
+  } else if (tl.level === 'critical') {
+    riskClass = 'risk-critical';
+    chipClass = 'chip-critical';
+    chipTxt = 'Critical';
+  } else if (tl.level === 'warning') {
+    riskClass = 'risk-warning';
+    chipClass = 'chip-warning';
+    chipTxt = 'Delayed';
+  }
+  
+  let nbaClass = 'ok', nbaIcon = 'fa-check-circle', nbaText = 'Documents complete — ready to advance stage';
+  if (isOnboarded) {
+    const delayInfo = days.delayDays > 0 ? ` (Delayed by ${days.delayDays} days)` : ' (On Time)';
+    nbaClass = 'ok';
+    nbaIcon = 'fa-flag-checkered';
+    nbaText = `Onboarded – Completed in ${days.actualDays} days${delayInfo}`;
+  } else if (isRejected) {
+    nbaClass = 'critical';
+    nbaIcon = 'fa-ban';
+    nbaText = `Rejected – ${d.currentStage === 'Rejected – Selection' ? 'Post‑shortlisting' : 'Post‑CFT'}`;
+  } else if (tl.delayDays >= 10) {
+    nbaClass = 'critical';
+    nbaIcon = 'fa-circle-exclamation';
+    nbaText = `Escalate: ${d.currentStage || 'stage'} stalled ${tl.delayDays}d`;
+  } else if (tl.delayDays >= 6) {
+    nbaClass = 'warning';
+    nbaIcon = 'fa-triangle-exclamation';
+    nbaText = `Follow up: stuck in ${d.currentStage || 'stage'} ${tl.delayDays}d`;
+  } else if (missing > 0) {
+    nbaClass = 'warning';
+    nbaIcon = 'fa-file-circle-exclamation';
+    nbaText = `${missing} document${missing > 1 ? 's' : ''} pending submission`;
+  }
+  
+  const actualColor = (days.actualDays > days.idealDays && !isOnboarded && !isRejected) ? 'red' : '';
+  const forecastColor = (days.forecastDays > days.idealDays && !isOnboarded && !isRejected) ? 'amber' : 'green';
+  const progClass = dp === 100 ? 'success' : (tl.level === 'critical' && !isOnboarded && !isRejected) ? 'danger' : (tl.level === 'warning' && !isOnboarded && !isRejected) ? 'warning' : '';
+  
+  return `<div class="entity-card ${riskClass}">
+    <div class="entity-card-top">
+      <div class="entity-header">
+        <div>
+          <div class="entity-name">${esc(d.name)}</div>
+          <div class="entity-meta">
+            <span class="entity-meta-item"><i class="fas fa-location-dot"></i>${esc(d.city || '—')}</span>
+            <span class="entity-meta-item"><i class="fas fa-user-tie"></i>${esc(d.rm || 'Unassigned')}</span>
+          </div>
+        </div>
+        <span class="chip ${chipClass}" title="${isOnboarded ? (days.delayDays > 0 ? `Delayed by ${days.delayDays} days` : 'On time') : ''}">${chipTxt}</span>
+      </div>
+      <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
+        ${DEALER_STAGES.map((st, i) => `<span style="font-size:0.62rem;padding:2px 7px;border-radius:10px;font-weight:700;${i === stageIdx ? 'background:var(--blue-500);color:white' : 'background:var(--slate-100);color:var(--text-muted)'}">${i < stageIdx ? '✓ ' : i === stageIdx ? '● ' : ''}${st}</span>`).join('')}
+      </div>
+      <div class="progress-wrap" style="margin-top:10px">
+        <div class="progress-label"><span>Document Completion</span><span style="font-family:'DM Mono',monospace;font-weight:600">${dp}%</span></div>
+        <div class="progress-track"><div class="progress-fill ${progClass}" style="width:${dp}%"></div></div>
+      </div>
+    </div>
+    <div class="entity-card-body">
+      <div class="stats-row">
+        <div class="stat-cell"><div class="stat-label">Stage</div><div class="stat-val" style="font-size:0.78rem">${esc(d.currentStage || 'Interested')}</div></div>
+        <div class="stat-cell"><div class="stat-label">Docs Done</div><div class="stat-val ${dp < 100 ? 'amber' : 'green'}">${DOC_KEYS.filter(k => d.documents?.[k]).length}/${DOC_KEYS.length}</div></div>
+        <div class="stat-cell"><div class="stat-label">Status</div><div class="stat-val ${isRejected ? 'red' : (tl.level === 'critical' ? 'red' : tl.level === 'warning' ? 'amber' : 'green')}" style="font-size:0.78rem">${isRejected ? 'Dropped' : (d.status || 'Active')}</div></div>
+      </div>
+      <div class="stats-row-label">Schedule Days</div>
+      <div class="stats-row">
+        <div class="stat-cell"><div class="stat-label">Ideal</div><div class="stat-val">${days.idealDays}d</div></div>
+        <div class="stat-cell"><div class="stat-label">Actual</div><div class="stat-val ${actualColor}">${days.actualDays}d</div></div>
+        <div class="stat-cell"><div class="stat-label">Forecast</div><div class="stat-val ${forecastColor}">${days.forecastDays}d</div></div>
+      </div>
+      <div class="nba-strip ${nbaClass}">
+        <i class="fas ${nbaIcon}"></i>
+        <span><strong>Next Action:</strong> ${nbaText}</span>
+      </div>
+    </div>
+    <div class="entity-card-footer">
+      <button class="btn btn-primary btn-sm view-dealer-detail" data-id="${d.id}"><i class="fas fa-file-lines"></i> View Details</button>
+    </div>
+  </div>`;
+}
+
+function renderDashboard() {
+  updateNavBadges();
+  const filtered = getFilteredShowrooms();
+  renderShowroomKpis(filtered);
+  renderShowroomAlertBanner(filtered);
+  populateRMFilter('filterRM', state.showrooms.map(s=>s.rm));
+  renderShowroomCards(filtered);
+}
+
+function renderDealerView() {
+  updateNavBadges();
+  const filtered = getFilteredDealers();
+  renderDealerKpis(filtered);
+  renderDealerAlertBanner(filtered);
+  populateRMFilter('dealerFilterRM', state.dealers.map(d=>d.rm), document.getElementById('dealerFilterRM')?.value);
+  renderDealerCards(filtered);
+}
+
+function renderShowroomCards(filtered) {
+  document.getElementById('showroomCount').textContent = `${filtered.length} of ${state.showrooms.length}`;
+  const grid = document.getElementById('showroomGrid');
+  if (isLoading) {
+    grid.innerHTML = Array(4).fill(0).map(() => `<div class="entity-card skeleton" style="height:320px;"></div>`).join('');
+    return;
+  }
+  if (!state.showrooms.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🏗️</div><div class="empty-title">No showrooms yet</div><div class="empty-sub">Start by adding your first showroom.</div>${isAdmin()?`<button class="btn btn-primary" id="emptyAddShowroomBtn"><i class="fas fa-plus"></i> Add Showroom</button>`:''}</div>`;
+    const emptyBtn = document.getElementById('emptyAddShowroomBtn');
+    if (emptyBtn) emptyBtn.onclick = () => document.getElementById('addShowroomModal').style.display = 'flex';
+    return;
+  }
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No results found</div><div class="empty-sub">Try adjusting your search or filters.</div><button class="btn btn-outline" id="emptyResetFiltersBtn"><i class="fas fa-rotate-left"></i> Clear Filters</button></div>`;
+    document.getElementById('emptyResetFiltersBtn')?.addEventListener('click', resetFilters);
+    return;
+  }
+  grid.innerHTML = filtered.map(s => buildShowroomCard(s)).join('');
+  document.querySelectorAll('.view-showroom-detail').forEach(btn => {
+    btn.addEventListener('click', () => openShowroomDetail(btn.getAttribute('data-id')));
+  });
+}
+
+function renderDealerCards(filtered) {
+  document.getElementById('dealerCount').textContent = `${filtered.length} of ${state.dealers.length}`;
+  const grid = document.getElementById('dealerGrid');
+  if (!state.dealers.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No dealers yet</div><div class="empty-sub">Start by adding your first dealer.</div>${isAdmin()?`<button class="btn btn-primary" id="emptyAddDealerBtn"><i class="fas fa-plus"></i> Add Dealer</button>`:''}</div>`;
+    const emptyBtn = document.getElementById('emptyAddDealerBtn');
+    if (emptyBtn) emptyBtn.onclick = () => document.getElementById('addDealerModal').style.display = 'flex';
+    return;
+  }
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No results found</div><div class="empty-sub">Try adjusting your search or filters.</div><button class="btn btn-outline" id="emptyResetDealerFiltersBtn"><i class="fas fa-rotate-left"></i> Clear Filters</button></div>`;
+    document.getElementById('emptyResetDealerFiltersBtn')?.addEventListener('click', resetDealerFilters);
+    return;
+  }
+  grid.innerHTML = filtered.map(d => buildDealerCard(d)).join('');
+  document.querySelectorAll('.view-dealer-detail').forEach(btn => {
+    btn.addEventListener('click', () => openDealerDetail(btn.getAttribute('data-id')));
+  });
+}
+
+function renderShowroomAlertBanner(filtered) {
+  const metrics = calculateShowroomMetrics(filtered);
+  const ab = document.getElementById('alertBanner');
+  if (metrics.critical > 0) {
+    const worst = [...filtered].sort((a,b) => calcShowroomStats(b).maxDelay - calcShowroomStats(a).maxDelay)[0];
+    ab.className = 'alert-banner critical';
+    ab.querySelector('.alert-icon').textContent = '🚨';
+    document.getElementById('alertTitle').textContent = `${metrics.critical} showroom${metrics.critical>1?'s':''} with critical delays (10+ days)`;
+    document.getElementById('alertDesc').textContent = `Worst: ${worst?.name} — ${calcShowroomStats(worst).maxDelay} days behind. Immediate escalation recommended.`;
+    ab.style.display = 'flex';
+  } else if (metrics.delayed > 3) {
+    ab.className = 'alert-banner warning';
+    ab.querySelector('.alert-icon').textContent = '⚠️';
+    document.getElementById('alertTitle').textContent = `${metrics.delayed} showrooms behind schedule`;
+    document.getElementById('alertDesc').textContent = 'Review phase dates and follow up with assigned RMs.';
+    ab.style.display = 'flex';
+  } else {
+    ab.style.display = 'none';
+  }
+}
+
+function renderDealerAlertBanner(filtered) {
+  const m = calculateDealerMetrics(filtered);
+  const ab = document.getElementById('dealerAlertBanner');
+  if (m.critical > 0) {
+    ab.className = 'alert-banner critical';
+    ab.querySelector('.alert-icon').textContent = '🚨';
+    document.getElementById('dealerAlertTitle').textContent = `${m.critical} dealer${m.critical>1?'s':''} critically delayed (10+ days)`;
+    document.getElementById('dealerAlertDesc').textContent = 'Review onboarding stages and escalate to relevant RMs immediately.';
+    ab.style.display = 'flex';
+  } else if (m.delayed > 0) {
+    ab.className = 'alert-banner warning';
+    ab.querySelector('.alert-icon').textContent = '⚠️';
+    document.getElementById('dealerAlertTitle').textContent = `${m.delayed} dealer${m.delayed>1?'s':''} delayed in onboarding`;
+    document.getElementById('dealerAlertDesc').textContent = 'Follow up on pending documentation and stage transitions.';
+    ab.style.display = 'flex';
+  } else {
+    ab.style.display = 'none';
+  }
+}
+
+function populateRMFilter(elId, rmList, currentVal=null) {
+  const sel = document.getElementById(elId);
+  if (!sel) return;
+  const prev = currentVal || sel.value;
+  const rms = [...new Set(rmList.filter(Boolean))].sort();
+  sel.innerHTML = `<option value="all">All RMs</option>` + rms.map(r => `<option value="${esc(r)}" ${r===prev?'selected':''}>${esc(r)}</option>`).join('');
+}
+
+// 🆕 NEW: Populate dealer stage filter dynamically
+function populateDealerStageFilter() {
+  const select = document.getElementById('dealerFilterStage');
+  if (!select) return;
+  const currentVal = select.value;
+  select.innerHTML = '<option value="all">All Stages</option>' +
+    DEALER_STAGES.map(stage => `<option value="${esc(stage)}" ${currentVal === stage ? 'selected' : ''}>${esc(stage)}</option>`).join('');
+}
+
+function updateNavBadges() {
+  const critSR = state.showrooms.filter(s => calcShowroomStats(s).maxDelay >= 10 && !isCompleted(s, 'showroom')).length;
+  const critDL = state.dealers.filter(d => calcDealerTimeline(d).level === 'critical' && !['Rejected – Selection','Rejected – CFT'].includes(d.currentStage) && !isCompleted(d, 'dealer')).length;
+  const sB = document.getElementById('navBadgeShowrooms');
+  const dB = document.getElementById('navBadgeDealers');
+  if (sB) { sB.textContent = critSR; sB.style.display = critSR ? 'inline' : 'none'; }
+  if (dB) { dB.textContent = critDL; dB.style.display = critDL ? 'inline' : 'none'; }
+  const sa = document.getElementById('sidebarAlert');
+  const sat = document.getElementById('sidebarAlertText');
+  const total = critSR + critDL;
+  if (sa) {
+    if (total > 0) {
+      sa.classList.add('visible');
+      sat.textContent = `${critSR} showroom${critSR!==1?'s':''}, ${critDL} dealer${critDL!==1?'s':''} at risk`;
+    } else {
+      sa.classList.remove('visible');
+    }
+  }
+}
+
+async function renderAnalytics() {
+  const totalSR = state.showrooms.length;
+  const completedSR = state.showrooms.filter(s => calcShowroomStats(s).pct === 100 || isCompleted(s, 'showroom')).length;
+  const totalDl = state.dealers.length;
+  const onboarded = state.dealers.filter(d => d.status==='Completed'||d.currentStage==='Onboarded').length;
+  const active = state.dealers.filter(d => d.status==='Active' && !['Rejected – Selection','Rejected – CFT'].includes(d.currentStage)).length;
+  const srMetrics = calculateShowroomMetrics(state.showrooms);
+  const dlMetrics = calculateDealerMetrics(state.dealers);
+  document.getElementById('analyticsKpiGrid').innerHTML = [
+    kpiCard('Showroom Velocity', `${totalSR?Math.round((completedSR/totalSR)*100):0}%`, 'fa-rocket', 'var(--blue-500)', 'var(--blue-50)', null, 0),
+    kpiCard('Dealer Conversion', `${(active+onboarded)?Math.round((onboarded/(active+onboarded))*100):0}%`, 'fa-arrow-right-arrow-left', 'var(--emerald-500)', 'var(--emerald-50)', null, 30),
+    kpiCard('SR Avg Forecast', `${srMetrics.avgForecastDays}d`, 'fa-chart-line', 'var(--purple-500)', 'var(--purple-100)', {cls:'up',text:`vs ${srMetrics.avgIdealDays}d ideal`}, 60),
+    kpiCard('DL Avg Forecast', `${dlMetrics.avgForecastDays}d`, 'fa-calendar-clock', 'var(--amber-500)', 'var(--amber-50)', {cls:'up',text:`vs ${dlMetrics.avgIdealDays}d ideal`}, 90),
+  ].join('');
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+  Chart.defaults.color = '#64748B';
+  const stageCounts = DEALER_STAGES.map(st => state.dealers.filter(d => (d.currentStage||'Interested') === st).length);
+  if (charts.funnel) charts.funnel.destroy();
+  charts.funnel = new Chart(document.getElementById('funnelChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:DEALER_STAGES, datasets:[{ label:'Dealers', data:stageCounts, backgroundColor:['#93C5FD','#67E8F9','#6EE7B7','#FDE68A','#A7F3D0','#FCA5A5','#FCA5A5'], borderRadius:6 }]},
+    options:{ responsive:true, plugins:{ legend:{display:false}}, scales:{ y:{ grid:{color:'#F1F5F9'}, ticks:{precision:0}}, x:{grid:{display:false}}}}
+  });
+  if (charts.trend) charts.trend.destroy();
+  charts.trend = new Chart(document.getElementById('trendChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:state.showrooms.map(s=>(s.name||'').substring(0,12)+'…'), datasets:[{ label:'Completion %', data:state.showrooms.map(s=>calcShowroomStats(s).pct), backgroundColor:(ctx)=>{ const v=ctx.raw; return v===100?'#6EE7B7':v>60?'#93C5FD':'#FCA5A5'; }, borderRadius:6 }]},
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{max:100, grid:{color:'#F1F5F9'}}, x:{grid:{display:false}}}}
+  });
+  const rmMap = new Map();
+  state.dealers.forEach(d => { const rm=d.rm||'Unassigned'; rmMap.set(rm,(rmMap.get(rm)||0)+1); });
+  const sorted = Array.from(rmMap.entries()).sort((a,b)=>b[1]-a[1]);
+  const maxC = sorted[0]?.[1] || 1;
+  document.getElementById('rmLeaderboard').innerHTML = sorted.map(([rm,cnt],i) => `
+    <div class="leaderboard-item">
+      <div class="lb-rank ${i===0?'gold':i===1?'silver':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`}</div>
+      <div class="lb-rm">${esc(rm)}</div>
+      <div class="lb-bar-wrap"><div class="lb-bar"><div class="lb-bar-fill" style="width:${Math.round((cnt/maxC)*100)}%"></div></div></div>
+      <div class="lb-count">${cnt} dealer${cnt!==1?'s':''}</div>
+    </div>`).join('');
+  const delays = { ok:0, warn:0, crit:0 };
+  state.dealers.forEach(d => { 
+    if (['Rejected – Selection','Rejected – CFT'].includes(d.currentStage)) return;
+    const dd=calcDealerTimeline(d).delayDays; 
+    if(dd<6) delays.ok++; 
+    else if(dd<10) delays.warn++; 
+    else delays.crit++; 
+  });
+  document.getElementById('delayDistribution').innerHTML = `<div class="delay-cards">
+    <div class="delay-bucket ok"><div class="delay-bucket-count" style="color:var(--emerald-600)">${delays.ok}</div><div class="delay-bucket-label" style="color:var(--emerald-600)">On Track<br>&lt; 6d</div></div>
+    <div class="delay-bucket warn"><div class="delay-bucket-count" style="color:var(--amber-600)">${delays.warn}</div><div class="delay-bucket-label" style="color:var(--amber-600)">Warning<br>6–9d</div></div>
+    <div class="delay-bucket crit"><div class="delay-bucket-count" style="color:var(--red-600)">${delays.crit}</div><div class="delay-bucket-label" style="color:var(--red-600)">Critical<br>10+d</div></div>
+  </div>`;
+  const docData = DEALER_STAGES.map(stage => {
+    const dl = state.dealers.filter(d => (d.currentStage||'Interested') === stage);
+    return dl.length ? Math.round(dl.reduce((s,d)=>s+docProgress(d.documents),0)/dl.length) : 0;
+  });
+  if (charts.docs) charts.docs.destroy();
+  charts.docs = new Chart(document.getElementById('docsChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:DEALER_STAGES, datasets:[{ label:'Doc Completion %', data:docData, backgroundColor:'#A78BFA', borderRadius:6 }]},
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{max:100, grid:{color:'#F1F5F9'}}, x:{grid:{display:false}}}}
+  });
+}
+
+function setActiveNav(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+function showDashboard() {
+  currentView = 'dashboard';
+  setActiveNav('nav-dashboard');
+  document.getElementById('pageTitle').textContent = 'Showrooms';
+  document.getElementById('pageBreadcrumb').textContent = 'Showroom Execution';
+  document.getElementById('addEntityBtn').innerHTML = '<i class="fas fa-plus"></i> Add Showroom';
+  document.getElementById('addEntityBtn').style.display = isAdmin() ? 'inline-flex' : 'none';
+  document.getElementById('dashboardView').style.display = 'block';
+  document.getElementById('analyticsView').style.display = 'none';
+  document.getElementById('dealerView').style.display = 'none';
+  renderDashboard();
+}
+
+function showAnalytics() {
+  currentView = 'analytics';
+  setActiveNav('nav-analytics');
+  document.getElementById('pageTitle').textContent = 'Analytics';
+  document.getElementById('pageBreadcrumb').textContent = 'Performance Intelligence';
+  document.getElementById('addEntityBtn').style.display = 'none';
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('analyticsView').style.display = 'block';
+  document.getElementById('dealerView').style.display = 'none';
+  renderAnalytics();
+}
+
+function openDealerModule() {
+  currentView = 'dealer';
+  setActiveNav('nav-dealers');
+  document.getElementById('pageTitle').textContent = 'Dealers';
+  document.getElementById('pageBreadcrumb').textContent = 'Dealer Onboarding';
+  document.getElementById('addEntityBtn').innerHTML = '<i class="fas fa-plus"></i> Add Dealer';
+  document.getElementById('addEntityBtn').style.display = isAdmin() ? 'inline-flex' : 'none';
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('analyticsView').style.display = 'none';
+  document.getElementById('dealerView').style.display = 'block';
+  populateDealerStageFilter(); // 🆕 NEW: refresh stage filter
+  renderDealerView();
+}
+
+function toggleSort() {
+  sortByDelay = !sortByDelay;
+  document.getElementById('sortBtn').innerHTML = `<i class="fas fa-sort"></i> Sort: ${sortByDelay?'Delay':'Name'}`;
+  renderDashboard();
+}
+
+function resetFilters() {
+  document.getElementById('globalSearch').value = '';
+  document.getElementById('filterRM').value = 'all';
+  renderDashboard();
+}
+
+function resetDealerFilters() {
+  ['dealerFilterStatus','dealerFilterStage','dealerFilterRM'].forEach(id => { const el=document.getElementById(id); if(el) el.value='all'; });
+  document.getElementById('dealerSearch').value = '';
+  renderDealerView();
+}
+
+function closeModal(id) { const el=document.getElementById(id); if(el) el.style.display='none'; }
+
+function openAddShowroomModal() { document.getElementById('addShowroomModal').style.display = 'flex'; }
+function openAddDealerModal() { document.getElementById('addDealerModal').style.display = 'flex'; }
+
+async function openShowroomDetail(id) {
+  const s = state.showrooms.find(x => x.id === id);
+  if (!s) { showToast('Showroom not found','error'); return; }
+  currentShowroomIdForDetail = id;
+  const start = s.startDate ? new Date(s.startDate) : null;
+  const today = new Date();
+  document.getElementById('showroomDetailTitle').textContent = `${s.name} — Phase Tracker`;
+  let rows = '';
+  for (const p of PHASES_CONFIG) {
+    const target = start ? new Date(start) : null;
+    if (target) target.setDate(start.getDate() + p.days);
+    const actualDate = s.data?.[p.id]?.actualDate || '';
+    let status='Pending', variance='', statusClass='chip-neutral', isDelayed=false;
+    if (actualDate) {
+      const actual = new Date(actualDate);
+      const diff = target ? Math.ceil((actual - target) / 86400000) : 0;
+      if (diff <= 0) { status='Completed'; statusClass='chip-success'; variance=diff<0?`${Math.abs(diff)}d early`:'On time'; }
+      else { status='Delayed'; statusClass='chip-critical'; variance=`+${diff}d late`; isDelayed=true; }
+    } else if (target && target < today) {
+      const diff = Math.ceil((today - target) / 86400000);
+      status='Overdue'; statusClass='chip-critical'; variance=`${diff}d overdue`; isDelayed=true;
+    }
+    rows += `<tr ${isDelayed?'class="row-delayed"':''}>
+      <td><span class="phase-name">${esc(p.name)}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--text-muted)">${p.days}</td>
+      <td style="font-size:0.78rem">${target ? fmtDate(target) : '—'}</td>
+      <td><input type="date" class="form-input phase-date" data-phase="${p.id}" value="${actualDate}" style="width:140px;font-size:0.8rem;padding:6px 10px"></td>
+      <td><span class="chip ${statusClass}" style="font-size:0.62rem">${status}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.78rem;${isDelayed?'color:var(--red-600);font-weight:700':''}">${variance||'—'}</td>
+      <td><input type="text" class="form-input phase-note" data-phase="${p.id}" value="${esc(s.data?.[p.id]?.reason||'')}" placeholder="Notes…" style="font-size:0.78rem;padding:6px 10px"></td>
+    </tr>`;
+  }
+  document.getElementById('showroomDetailContent').innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="phase-table">
+        <thead><tr><th>Phase</th><th>Plan Days</th><th>Target Date</th><th>Actual Date</th><th>Status</th><th>Variance</th><th>Notes</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-success" id="savePhasesBtn"><i class="fas fa-save"></i> Save All Changes</button>
+    </div>`;
+  document.getElementById('showroomEditBtn').style.display = isAdmin() ? 'inline-flex' : 'none';
+  document.getElementById('showroomDeleteBtn').style.display = isAdmin() ? 'inline-flex' : 'none';
+  document.getElementById('showroomDetailModal').style.display = 'flex';
+  document.getElementById('savePhasesBtn').onclick = () => saveShowroomPhases(id);
+  document.getElementById('showroomEditBtn').onclick = openShowroomEditFromDetail;
+  document.getElementById('showroomDeleteBtn').onclick = deleteShowroomFromDetail;
+}
+
+function openShowroomEditFromDetail() {
+  if (!currentShowroomIdForDetail || !isAdmin()) return;
+  const s = state.showrooms.find(x => x.id === currentShowroomIdForDetail);
+  if (!s) return;
+  currentEditShowroomId = s.id;
+  document.getElementById('edit-showroom-name').value = s.name || '';
+  document.getElementById('edit-showroom-city').value = s.city || '';
+  document.getElementById('edit-showroom-rm').value = s.rm || '';
+  document.getElementById('edit-showroom-start').value = s.startDate || '';
+  closeModal('showroomDetailModal');
+  document.getElementById('edit-showroom-modal').style.display = 'flex';
+}
+
+async function deleteShowroomFromDetail() {
+  if (!currentShowroomIdForDetail || !isAdmin()) return;
+  const s = state.showrooms.find(x => x.id === currentShowroomIdForDetail);
+  if (!confirm(`⚠️ Permanently delete "${s?.name}"? Cannot be undone.`)) return;
+  if (!confirm(`Confirm again: remove "${s?.name}" permanently?`)) return;
+  try {
+    await deleteDoc(doc(db, 'showrooms', currentShowroomIdForDetail));
+    showToast(`Deleted "${s?.name}"`, 'success');
+    closeModal('showroomDetailModal');
+    renderDashboard();
+  } catch(e) { showToast(parseFirebaseError(e,'Failed to delete'),'error'); }
+}
+
+async function saveShowroomPhases(id) {
+  const s = state.showrooms.find(x => x.id === id);
+  if (!s) return;
+  try {
+    const updates = {};
+    document.querySelectorAll('.phase-date').forEach(i => { const pid=i.dataset.phase; if(!updates[pid])updates[pid]={}; updates[pid].actualDate=i.value; });
+    document.querySelectorAll('.phase-note').forEach(i => { const pid=i.dataset.phase; if(!updates[pid])updates[pid]={}; updates[pid].reason=i.value; });
+    await updateDoc(doc(db,'showrooms',id), { data:{...s.data,...updates}, updatedAt:serverTimestamp() });
+    showToast('Phases saved successfully','success');
+    closeModal('showroomDetailModal');
+    renderDashboard();
+  } catch(e) { showToast(parseFirebaseError(e,'Failed to save'),'error'); }
+}
+
+async function saveEditShowroom() {
+  if (!currentEditShowroomId) return;
+  const name = document.getElementById('edit-showroom-name').value.trim();
+  const city = document.getElementById('edit-showroom-city').value.trim();
+  const rm = document.getElementById('edit-showroom-rm').value.trim();
+  const start = document.getElementById('edit-showroom-start').value;
+  if (!name||!city||!rm||!start) { showToast('All fields required','error'); return; }
+  if (hasDuplicateShowroomName(name, currentEditShowroomId)) { showToast('Name already exists','error'); return; }
+  try {
+    await updateDoc(doc(db,'showrooms',currentEditShowroomId), { name,city,rm,startDate:start,updatedAt:serverTimestamp() });
+    showToast('Showroom updated','success');
+    closeModal('edit-showroom-modal');
+    renderDashboard();
+    openShowroomDetail(currentEditShowroomId);
+  } catch(e) { showToast(parseFirebaseError(e,'Failed to update'),'error'); }
+}
+
+async function openDealerDetail(id) {
+  const d = state.dealers.find(x => x.id === id);
+  if (!d) return;
+  currentDealerIdForDetail = id;
+  document.getElementById('detailDealerName').textContent = d.name;
+  const curStage = d.currentStage || 'Interested';
+  const stageIdx = DEALER_STAGES.indexOf(curStage);
+  const tl = calcDealerTimeline(d);
+  const days = calcDealerDayMetrics(d);
+  let stepsHtml = `<div class="stage-stepper">`;
+  DEALER_STAGES.forEach((st,i) => {
+    stepsHtml += `<button class="stage-step ${i===stageIdx?'active':i<stageIdx?'completed':''}" data-stage="${st}">${i<stageIdx?'✓ ':''}${st}</button>`;
+  });
+  stepsHtml += `</div>`;
+  const docs = d.documents || {};
+  let docsHtml = `<div style="margin-bottom:20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-weight:700;font-size:0.9rem">📋 Document Checklist</div><div style="font-size:0.78rem;color:var(--text-muted)">${DOC_KEYS.filter(k=>docs[k]).length}/${DOC_KEYS.length} submitted</div></div><div class="doc-grid">`;
+  DOC_KEYS.forEach(key => {
+    docsHtml += `<div class="doc-item"><input type="checkbox" class="doc-checkbox" data-key="${key}" ${docs[key]?'checked':''}><span class="doc-item-label">${DOC_LABELS[key]||key}</span><span class="doc-item-status ${docs[key]?'done':'pending'}">${docs[key]?'✓':'⏳'}</span></div>`;
+  });
+  docsHtml += `</div></div>`;
+  const infoHtml = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+    <div class="stat-cell" style="flex:1;border:1px solid var(--slate-200);border-radius:var(--r-sm)"><div class="stat-label">Start Date</div><div class="stat-val" style="font-size:0.85rem">${fmtDate(d.startDate)}</div></div>
+    <div class="stat-cell" style="flex:1;border:1px solid var(--slate-200);border-radius:var(--r-sm)"><div class="stat-label">Ideal Days</div><div class="stat-val">${days.idealDays}d</div></div>
+    <div class="stat-cell" style="flex:1;border:1px solid var(--slate-200);border-radius:var(--r-sm)"><div class="stat-label">Actual Days</div><div class="stat-val ${tl.isDelayed?'red':''}">${days.actualDays}d</div></div>
+    <div class="stat-cell" style="flex:1;border:1px solid var(--slate-200);border-radius:var(--r-sm)"><div class="stat-label">Forecast Days</div><div class="stat-val ${days.forecastDays>days.idealDays?'amber':'green'}">${days.forecastDays}d</div></div>
+    <div class="stat-cell" style="flex:1;border:1px solid var(--slate-200);border-radius:var(--r-sm)"><div class="stat-label">Delay</div><div class="stat-val ${tl.level==='critical'?'red':tl.level==='warning'?'amber':''}">${tl.delayDays}d</div></div>
+    <div class="stat-cell" style="flex:1;border:1px solid var(--slate-200);border-radius:var(--r-sm)"><div class="stat-label">City / RM</div><div class="stat-val" style="font-size:0.78rem">${esc(d.city||'—')} / ${esc(d.rm||'—')}</div></div>
+  </div>`;
+  document.getElementById('dealerDetailContent').innerHTML = infoHtml + stepsHtml + docsHtml;
+  document.getElementById('dealerEditBtn').style.display = isAdmin() ? 'inline-flex' : 'none';
+  document.getElementById('dealerDeleteBtn').style.display = isAdmin() ? 'inline-flex' : 'none';
+  document.getElementById('dealerDetailModal').style.display = 'flex';
+  document.querySelectorAll('.stage-step').forEach(btn => {
+    btn.addEventListener('click', () => updateDealerStage(id, btn.getAttribute('data-stage')));
+  });
+  document.querySelectorAll('.doc-checkbox').forEach(cb => {
+    cb.addEventListener('change', () => updateDealerDoc(id, cb.getAttribute('data-key'), cb.checked));
+  });
+  document.getElementById('dealerEditBtn').onclick = openDealerEditFromDetail;
+  document.getElementById('dealerDeleteBtn').onclick = deleteDealerFromDetail;
+}
+
+// 🔥 UPDATED: updateDealerStage with rejection logic
+async function updateDealerStage(id, newStage) {
+  const d = state.dealers.find(x => x.id === id);
+  if (!d) return;
+  const cur = d.currentStage || 'Interested';
+  const curIdx = DEALER_STAGES.indexOf(cur);
+  const newIdx = DEALER_STAGES.indexOf(newStage);
+  if (newIdx === -1) return;
+  
+  if (cur === 'Rejected – Selection' || cur === 'Rejected – CFT') {
+    showToast('Rejected dealers cannot be modified', 'warning');
+    return;
+  }
+  
+  const isRejection = (newStage === 'Rejected – Selection' && cur === 'Shortlisted') ||
+                      (newStage === 'Rejected – CFT' && cur === 'CFT Selected');
+  if (!isRejection && Math.abs(newIdx - curIdx) > 1) {
+    showToast('Only adjacent stage transitions allowed', 'warning');
+    return;
+  }
+  if (!isRejection && newIdx < curIdx) {
+    if (!confirm(`Move back from ${cur} to ${newStage}? This may affect timeline.`)) return;
+  }
+  
+  let confirmMsg = `Move "${d.name}" from ${cur} → ${newStage}?`;
+  if (isRejection) confirmMsg = `⚠️ Reject "${d.name}"? This will mark as DROPPED and cannot be undone.`;
+  if (!confirm(confirmMsg)) return;
+  
+  try {
+    const stageLog = { ...(d.stageLog || {}) };
+    if (!stageLog[newStage]) stageLog[newStage] = new Date().toISOString();
+    let updates = {
+      currentStage: newStage,
+      stageLog,
+      updatedAt: serverTimestamp()
+    };
+    if (newStage === 'Onboarded') {
+      updates.status = 'Completed';
+    } else if (isRejection) {
+      updates.status = 'Dropped';
+    } else {
+      updates.status = 'Active';
+    }
+    await updateDoc(doc(db, 'dealerOnboarding', id), updates);
+    showToast(isRejection ? `Dealer rejected and marked as Dropped` : `Stage updated to ${newStage}`, 'success');
+    await openDealerDetail(id);
+    if (currentView === 'dealer') renderDealerView();
+    if (currentView === 'dashboard') renderDashboard();
+  } catch (e) {
+    showToast(parseFirebaseError(e, 'Failed to update stage'), 'error');
+  }
+}
+
+async function updateDealerDoc(id, docKey, checked) {
+  const d = state.dealers.find(x => x.id === id);
+  if (!d) return;
+  if (d.currentStage === 'Rejected – Selection' || d.currentStage === 'Rejected – CFT') {
+    showToast('Cannot edit documents for rejected dealers', 'warning');
+    return;
+  }
+  const docs = {...(d.documents||{}), [docKey]:checked};
+  try {
+    const updates = { documents:docs, updatedAt:serverTimestamp() };
+    if (DOC_KEYS.every(k => docs[k])) { updates.currentStage = 'Onboarded'; updates.status = 'Completed'; }
+    await updateDoc(doc(db,'dealerOnboarding',id), updates);
+    showToast('Checklist updated','success');
+    await openDealerDetail(id);
+    if (currentView === 'dealer') renderDealerView();
+    if (currentView === 'dashboard') renderDashboard();
+  } catch(e) { showToast(parseFirebaseError(e,'Failed to update'),'error'); }
+}
+
+function openDealerEditFromDetail() {
+  if (!currentDealerIdForDetail || !isAdmin()) return;
+  const d = state.dealers.find(x => x.id === currentDealerIdForDetail);
+  if (!d) return;
+  if (d.currentStage === 'Rejected – Selection' || d.currentStage === 'Rejected – CFT') {
+    showToast('Cannot edit rejected dealers', 'warning');
+    return;
+  }
+  currentEditDealerId = d.id;
+  document.getElementById('edit-dealer-name').value = d.name || '';
+  document.getElementById('edit-dealer-city').value = d.city || '';
+  document.getElementById('edit-dealer-rm').value = d.rm || '';
+  document.getElementById('edit-dealer-start').value = d.startDate || '';
+  closeModal('dealerDetailModal');
+  document.getElementById('edit-dealer-modal').style.display = 'flex';
+}
+
+async function saveEditDealer() {
+  if (!currentEditDealerId) return;
+  const name = document.getElementById('edit-dealer-name').value.trim();
+  const city = document.getElementById('edit-dealer-city').value.trim();
+  const rm = document.getElementById('edit-dealer-rm').value.trim();
+  const start = document.getElementById('edit-dealer-start').value;
+  if (!name||!city||!rm||!start) { showToast('All fields required','error'); return; }
+  try {
+    await updateDoc(doc(db,'dealerOnboarding',currentEditDealerId), { name,city,rm,startDate:start,updatedAt:serverTimestamp() });
+    showToast('Dealer updated','success');
+    closeModal('edit-dealer-modal');
+    if (currentView === 'dealer') renderDealerView();
+    if (currentView === 'dashboard') renderDashboard();
+    openDealerDetail(currentEditDealerId);
+  } catch(e) { showToast(parseFirebaseError(e,'Failed to update'),'error'); }
+}
+
+async function deleteDealerFromDetail() {
+  if (!currentDealerIdForDetail || !isAdmin()) return;
+  const d = state.dealers.find(x => x.id === currentDealerIdForDetail);
+  if (!confirm(`Delete "${d?.name}" permanently?`)) return;
+  if (!confirm(`Confirm: permanently remove "${d?.name}"?`)) return;
+  try {
+    await deleteDoc(doc(db,'dealerOnboarding',currentDealerIdForDetail));
+    showToast(`Deleted "${d?.name}"`,'success');
+    closeModal('dealerDetailModal');
+    if (currentView === 'dealer') renderDealerView();
+    if (currentView === 'dashboard') renderDashboard();
+  } catch(e) { showToast(parseFirebaseError(e,'Failed to delete'),'error'); }
+}
+
+async function confirmAddShowroom() {
+  const name = document.getElementById('newShowroomName').value.trim();
+  const city = document.getElementById('newShowroomCity').value.trim();
+  const rm = document.getElementById('newShowroomRM').value.trim();
+  const start = document.getElementById('newShowroomStart').value;
+  if (!name||!city||!rm||!start) { showToast('All fields are required','error'); return; }
+  if (hasDuplicateShowroomName(name)) { showToast('Showroom name already exists','error'); return; }
+  try {
+    await addDoc(collection(db,'showrooms'), { name,city,rm,startDate:start,data:{},createdBy:currentUserId,createdAt:serverTimestamp(),updatedAt:serverTimestamp() });
+    closeModal('addShowroomModal');
+    showToast(`Showroom "${name}" created`,'success');
+    ['newShowroomName','newShowroomCity','newShowroomRM','newShowroomStart'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    renderDashboard();
+  } catch(e) { showToast(parseFirebaseError(e,'Failed to create'),'error'); }
+}
+
+async function confirmAddDealer() {
+  const name = document.getElementById('newDealerName').value.trim();
+  const city = document.getElementById('newDealerCity').value.trim();
+  const rm = document.getElementById('newDealerRM').value.trim();
+  const start = document.getElementById('newDealerStart').value;
+  if (!name||!city||!rm||!start) { showToast('All fields required','error'); return; }
+  try {
+    await addDoc(collection(db,'dealerOnboarding'), { name,city,rm,startDate:start,currentStage:'Interested',status:'Active',documents:{},createdBy:currentUserId,createdAt:serverTimestamp(),updatedAt:serverTimestamp() });
+    closeModal('addDealerModal');
+    showToast(`Dealer "${name}" created`,'success');
+    ['newDealerName','newDealerCity','newDealerRM','newDealerStart'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    if (currentView === 'dealer') renderDealerView();
+    if (currentView === 'dashboard') renderDashboard();
+  } catch(e) { showToast(parseFirebaseError(e,'Failed to create'),'error'); }
+}
+
+function exportDashboardReport() {
+  try {
+    const wb = XLSX.utils.book_new();
+    const srData = state.showrooms.map(s => {
+      const st=calcShowroomStats(s); const d=calcShowroomDayMetrics(s);
+      return { 'Showroom Name':s.name,'City':s.city,'RM':s.rm,'Start Date':s.startDate,'Completion %':st.pct,'Completed Phases':st.completedPhases,'Total Phases':PHASES_CONFIG.length,'Ideal Days':d.idealDays,'Actual Days':d.actualDays,'Forecast Days':d.forecastDays,'Max Delay (d)':st.maxDelay,'Total Lag (d)':st.totalDelay,'Status':st.maxDelay>=10?'Critical':st.maxDelay>0?'Delayed':'On Track' };
+    });
+    const dlData = state.dealers.map(d => {
+      const tl=calcDealerTimeline(d); const dm=calcDealerDayMetrics(d);
+      return { 'Dealer Name':d.name,'City':d.city,'RM':d.rm,'Start Date':d.startDate,'Current Stage':d.currentStage||'Interested','Status':d.status,'Doc Completion %':docProgress(d.documents),'Ideal Days':dm.idealDays,'Actual Days':dm.actualDays,'Forecast Days':dm.forecastDays,'Delay Days':tl.delayDays,'Risk Level':tl.level };
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(srData), 'Showrooms');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dlData), 'Dealers');
+    XLSX.writeFile(wb, `AIS_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showToast('Excel report exported','success');
+  } catch(e) { showToast('Export failed','error'); }
+}
+
+function generatePDF() {
+  try {
+    const el = document.getElementById('mainContent');
+    html2canvas(el, { scale:2, useCORS:true }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jspdf.jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+      const pw = pdf.internal.pageSize.getWidth();
+      const ph = (canvas.height * pw) / canvas.width;
+      pdf.addImage(imgData,'PNG',0,0,pw,ph);
+      pdf.save(`AIS_Dashboard_${new Date().toISOString().slice(0,10)}.pdf`);
+      showToast('PDF generated','success');
+    });
+  } catch(e) { showToast('PDF generation failed','error'); }
+}
+
+function backupData() {
+  try {
+    const backup = { showrooms:state.showrooms, dealers:state.dealers, exportedAt:new Date().toISOString(), version:'3.0' };
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)], {type:'application/json'})),
+      download: `ais_backup_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`
+    });
+    a.click();
+    showToast('Backup downloaded','success');
+  } catch(e) { showToast('Backup failed','error'); }
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!email || !password) {
+    errEl.textContent = 'Please enter email and password';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    document.getElementById('loginPassword').value = '';
+  } catch(e) {
+    errEl.textContent = parseFirebaseError(e, 'Login failed. Check your credentials.');
+    errEl.style.display = 'block';
+  }
+}
+
+async function logout() {
+  try { await signOut(auth); showToast('Logged out','success'); }
+  catch(e) { showToast(parseFirebaseError(e,'Logout failed'),'error'); }
+}
+
+function toggleAuthenticatedUI() {
+  document.getElementById('loginScreen').style.display = currentUserId ? 'none' : 'flex';
+  document.getElementById('mainApp').style.display = currentUserId ? 'block' : 'none';
+  const rb = document.getElementById('roleBadge');
+  if (rb) { rb.className = `role-chip ${isAdmin()?'admin':'viewer'}`; rb.textContent = isAdmin() ? 'ADMIN' : 'Viewer'; }
+  const addBtn = document.getElementById('addEntityBtn');
+  if (addBtn) addBtn.style.display = isAdmin() ? 'inline-flex' : 'none';
+  if (currentUserEmail) {
+    const initials = currentUserEmail.substring(0,2).toUpperCase();
+    const av = document.getElementById('userAvatar');
+    const un = document.getElementById('userName');
+    const ur = document.getElementById('userRoleText');
+    if (av) av.textContent = initials;
+    if (un) un.textContent = currentUserEmail.split('@')[0];
+    if (ur) ur.textContent = isAdmin() ? 'Administrator' : 'Viewer';
+  }
+}
+
+function cleanupListeners() { realtimeUnsubscribers.forEach(u => u()); realtimeUnsubscribers = []; }
+
+async function loadUserRole(uid) {
+  const userRef = doc(db, 'users', uid);
+  const snap = await getDoc(userRef);
+  if (snap.exists()) {
+    userRole = snap.data().role || 'viewer';
+  } else {
+    userRole = 'admin';
+  }
+  return userRole;
+}
+
+function initRealtime() {
+  cleanupListeners();
+  isLoading = true;
+  renderDashboard();
+  const showroomsUnsub = onSnapshot(collection(db,'showrooms'), snap => {
+    state.showrooms = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    isLoading = false;
+    if (currentView === 'dashboard') renderDashboard();
+    if (currentView === 'analytics') renderAnalytics();
+  }, e => { showToast(parseFirebaseError(e,'Unable to load showrooms'),'error'); isLoading = false; });
+  const dealersUnsub = onSnapshot(collection(db,'dealerOnboarding'), snap => {
+    state.dealers = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    if (currentView === 'dashboard') renderDashboard();
+    if (currentView === 'analytics') renderAnalytics();
+    if (currentView === 'dealer') renderDealerView();
+  }, e => { showToast(parseFirebaseError(e,'Unable to load dealers'),'error'); });
+  realtimeUnsubscribers = [showroomsUnsub, dealersUnsub];
+}
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    cleanupListeners();
+    currentUserId = null; userRole = null; currentUserEmail = null;
+    state = { showrooms:[], dealers:[] };
+    toggleAuthenticatedUI();
+    return;
+  }
+  currentUserId = user.uid; currentUserEmail = user.email;
+  try {
+    await loadUserRole(user.uid);
+    toggleAuthenticatedUI();
+    initRealtime();
+    showDashboard();
+  } catch(e) {
+    showToast('Unable to load access role. Contact administrator.','error');
+    try { await signOut(auth); } catch(_){}
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loginButton').addEventListener('click', handleLogin);
+  document.getElementById('loginPassword').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('nav-dashboard').addEventListener('click', showDashboard);
+  document.getElementById('nav-dealers').addEventListener('click', openDealerModule);
+  document.getElementById('nav-analytics').addEventListener('click', showAnalytics);
+  document.getElementById('exportExcelBtn').addEventListener('click', exportDashboardReport);
+  document.getElementById('exportPdfBtn').addEventListener('click', generatePDF);
+  document.getElementById('backupDataBtn').addEventListener('click', backupData);
+  document.getElementById('addEntityBtn').addEventListener('click', openAddShowroomModal);
+  document.getElementById('sortBtn').addEventListener('click', toggleSort);
+  document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+  document.getElementById('resetDealerFiltersBtn').addEventListener('click', resetDealerFilters);
+  document.getElementById('confirmAddShowroomBtn').addEventListener('click', confirmAddShowroom);
+  document.getElementById('confirmAddDealerBtn').addEventListener('click', confirmAddDealer);
+  document.getElementById('saveEditShowroomBtn').addEventListener('click', saveEditShowroom);
+  document.getElementById('saveEditDealerBtn').addEventListener('click', saveEditDealer);
+  document.getElementById('dismissAlertBtn').addEventListener('click', () => { document.getElementById('alertBanner').style.display = 'none'; });
+  document.getElementById('dismissDealerAlertBtn').addEventListener('click', () => { document.getElementById('dealerAlertBanner').style.display = 'none'; });
+  document.querySelectorAll('.modal-close, [data-modal]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const modalId = btn.getAttribute('data-modal');
+      if (modalId) closeModal(modalId);
+    });
+  });
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.style.display='none');
+  });
+  const debouncedRenderDashboard = debounce(() => renderDashboard(), 300);
+  const debouncedRenderDealers = debounce(() => renderDealerView(), 300);
+  document.getElementById('globalSearch').addEventListener('input', debouncedRenderDashboard);
+  document.getElementById('filterRM').addEventListener('change', renderDashboard);
+  document.getElementById('dealerFilterStatus').addEventListener('change', renderDealerView);
+  document.getElementById('dealerFilterStage').addEventListener('change', renderDealerView);
+  document.getElementById('dealerFilterRM').addEventListener('change', renderDealerView);
+  document.getElementById('dealerSearch').addEventListener('input', debouncedRenderDealers);
+  populateDealerStageFilter(); // 🆕 NEW: initial population of stage filter
+});
+</script>
+</body>
+</html>
