@@ -524,7 +524,23 @@ function showToast(m,t='info'){
   c.appendChild(el);activeToasts.push(el);
   setTimeout(()=>{el.remove();activeToasts=activeToasts.filter(x=>x!==el);if(toastQueue.length){const n=toastQueue.shift();showToast(n.m,n.t);}},3600);
 }
-function parseFirebaseError(e,f){const m={'auth/invalid-credential':'Invalid email or password.','auth/invalid-email':'Enter a valid email.','auth/missing-password':'Enter your password.','auth/too-many-requests':'Too many attempts.','permission-denied':'No permission.','unavailable':'Service unavailable.'};return m[e?.code]||f;}
+function parseFirebaseError(e,f){const m={
+  'auth/invalid-credential':'Invalid email or password.',
+  'auth/wrong-password':'Invalid email or password.',
+  'auth/user-not-found':'No account found for this email.',
+  'auth/user-disabled':'This account has been disabled.',
+  'auth/invalid-email':'Enter a valid email address.',
+  'auth/missing-password':'Enter your password.',
+  'auth/network-request-failed':'Network error. Check connection and retry.',
+  'auth/invalid-api-key':'Firebase API key is invalid for this app.',
+  'auth/configuration-not-found':'Firebase Auth is not configured for this project.',
+  'auth/too-many-requests':'Too many attempts. Please wait and try again.',
+  'permission-denied':'Signed in, but this account has no permission.',
+  'unavailable':'Service temporarily unavailable. Please retry.'
+};
+const code=e?.code||'';
+return m[code]||(code?`${f} (${code})`:f);
+}
 function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
 function docProgress(d){return Math.round((DOC_KEYS.filter(k=>d?.[k]).length/DOC_KEYS.length)*100);}
 function hasDuplicateShowroomName(n,ignoreId=null){return state.showrooms.some(s=>s.id!==ignoreId&&normName(s.name)===normName(n));}
@@ -947,7 +963,25 @@ async function openShowroomDetail(id){
 async function saveShowroomPhases(id){
   const s=state.showrooms.find(x=>x.id===id);if(!s)return;
   const startDate=s.startDate?new Date(s.startDate):null;const phaseUpdates={};let hasValidationError=false;
-  document.querySelectorAll('.phase-date').forEach(i=>{const pid=i.dataset.phase;const val=i.value;if(val&&startDate){const actualDate=new Date(val);if(actualDate<startDate){i.classList.add('input-error');showToast(`${PHASES_CONFIG.find(p=>p.id===pid)?.name||pid}: Date cannot be before start date`,'error');hasValidationError=true;}else{const phaseConfig=PHASES_CONFIG.find(p=>p.id===pid);if(phaseConfig){const targetDate=new Date(startDate);targetDate.setDate(startDate.getDate()+phaseConfig.days);const diff=Math.ceil((actualDate-targetDate)/86400000);if(diff>phaseConfig.days*2){i.classList.add('input-error');}}}else{i.classList.remove('input-error');}}});
+  document.querySelectorAll('.phase-date').forEach(i=>{
+    const pid=i.dataset.phase;
+    const val=i.value;
+    i.classList.remove('input-error');
+    if(!val||!startDate)return;
+    const actualDate=new Date(val);
+    if(actualDate<startDate){
+      i.classList.add('input-error');
+      showToast(`${PHASES_CONFIG.find(p=>p.id===pid)?.name||pid}: Date cannot be before start date`,'error');
+      hasValidationError=true;
+      return;
+    }
+    const phaseConfig=PHASES_CONFIG.find(p=>p.id===pid);
+    if(!phaseConfig)return;
+    const targetDate=new Date(startDate);
+    targetDate.setDate(startDate.getDate()+phaseConfig.days);
+    const diff=Math.ceil((actualDate-targetDate)/86400000);
+    if(diff>phaseConfig.days*2)i.classList.add('input-error');
+  });
   if(hasValidationError){showToast('Fix validation errors before saving','error');return;}
   // Fix #17: Check SLA >2x and confirm
   let slaOverMax=false;
@@ -1063,7 +1097,24 @@ async function deleteDealerFromDetail(){
   try{setDealerDirty(false);await deleteDoc(doc(db,'dealerOnboarding',currentDealerIdForDetail));showToast('Deleted','success');closeModal('dealerDetailModal');if(currentView==='dealer')renderDealerView();if(currentView==='dashboard')renderDashboard();}catch(e){showToast('Failed','error');}
 }
 
-async function handleLogin(){const em=document.getElementById('loginUsername').value.trim(),pw=document.getElementById('loginPassword').value,er=document.getElementById('loginError');er.style.display='none';if(!em||!pw){er.textContent='Enter email and password';er.style.display='block';return;}try{await signInWithEmailAndPassword(auth,em,pw);document.getElementById('loginPassword').value='';}catch(e){er.textContent=parseFirebaseError(e,'Login failed');er.style.display='block';}}
+async function handleLogin(){
+  const em=document.getElementById('loginUsername').value.trim(),pw=document.getElementById('loginPassword').value,er=document.getElementById('loginError');
+  const btn=document.getElementById('loginButton');
+  er.style.display='none';
+  if(!em||!pw){er.textContent='Enter email and password';er.style.display='block';return;}
+  const oldBtnText=btn.textContent;
+  btn.disabled=true;btn.textContent='Signing In…';
+  try{
+    await signInWithEmailAndPassword(auth,em,pw);
+    document.getElementById('loginPassword').value='';
+  }catch(e){
+    console.error('Login failed',e);
+    er.textContent=parseFirebaseError(e,'Login failed');
+    er.style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent=oldBtnText;
+  }
+}
 async function logout(){try{await signOut(auth);showToast('Logged out','success');}catch(e){showToast('Logout failed','error');}}
 function cleanupListeners(){realtimeUnsubscribers.forEach(u=>{if(typeof u==='function')u();});realtimeUnsubscribers=[];}
 async function loadUserRole(uid){const ur=doc(db,'users',uid);const sn=await getDoc(ur);if(sn.exists()){userRole=sn.data().role||'viewer';}else{userRole='admin';}return userRole;}
@@ -1089,10 +1140,10 @@ onAuthStateChanged(auth, async user => {
   }
   currentUserId = user.uid;
   currentUserEmail = user.email;
-  
+
   // Set role directly instead of reading from Firestore
   userRole = 'admin'; // Default role
-  
+
   toggleAuthenticatedUI();
   initRealtime();
   loadFilterState();
@@ -1110,6 +1161,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('exportExecutivePackBtn').addEventListener('click',exportExecutivePackPDF);
   document.getElementById('loginButton').addEventListener('click',handleLogin);
   document.getElementById('loginPassword').addEventListener('keypress',(e)=>{if(e.key==='Enter')handleLogin();});
+  document.getElementById('loginUsername').addEventListener('keypress',(e)=>{if(e.key==='Enter')handleLogin();});
   document.getElementById('logoutBtn').addEventListener('click',logout);
   document.getElementById('nav-dashboard').addEventListener('click',showDashboard);
   document.getElementById('nav-dealers').addEventListener('click',openDealerModule);
