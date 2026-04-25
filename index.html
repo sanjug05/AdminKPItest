@@ -731,8 +731,51 @@ function calcDealerDayMetrics(d){
   let forecastDays;if(progress>0&&actualDays>0)forecastDays=Math.round(actualDays/progress);else forecastDays=idealDays;
   return{idealDays,actualDays,forecastDays,delayDays:Math.max(0,actualDays-idealDays)};
 }
-function calculateShowroomMetrics(sr){if(!sr.length)return{total:0,completed:0,active:0,delayed:0,critical:0,avgCompletion:0,avgIdealDays:0,avgActualDays:0,avgForecastDays:0};const a=sr.filter(s=>!isCompleted(s,'showroom'));const ss=sr.map(s=>calcShowroomStats(s));const ds=sr.map(s=>calcShowroomDayMetrics(s));const crit=stageConfig.showroom.criticalDelay,warn=stageConfig.showroom.warningDelay;const cc=a.filter(s=>{const st=calcShowroomStats(s);return st.maxDelay>=crit;}).length;const dc=a.filter(s=>{const st=calcShowroomStats(s);return st.maxDelay>=warn;}).length;return{total:a.length,completed:sr.filter(s=>isCompleted(s,'showroom')).length,active:a.length,delayed:dc,critical:cc,avgCompletion:avg(ss.map(s=>s.pct)),avgIdealDays:avg(ds.map(d=>d.idealDays)),avgActualDays:avg(ds.map(d=>d.actualDays)),avgForecastDays:avg(ds.map(d=>d.forecastDays))};}; 
-function calculateDealerMetrics(dl){if(!dl.length)return{total:0,completed:0,active:0,delayed:0,critical:0,dropped:0,droppedSelection:0,droppedCFT:0,avgIdealDays:0,avgActualDays:0,avgForecastDays:0};const a=dl.filter(d=>!isCompleted(d,'dealer')&&!isRejectedDealer(d));const dr=dl.filter(d=>isRejectedDealer(d));const ds=dl.filter(d=>d.currentStage==='Shortlist-reject');const dc=dl.filter(d=>d.currentStage==='CFT-Reject');const dys=dl.map(d=>calcDealerDayMetrics(d));const crit=stageConfig.dealer.criticalDelay,warn=stageConfig.dealer.warningDelay;const cc=a.filter(d=>{const tl=calcDealerTimeline(d);return tl.level==='critical';}).length;const dd=a.filter(d=>{const tl=calcDealerTimeline(d);return tl.isDelayed;}).length;return{total:a.length,completed:dl.filter(d=>isCompleted(d,'dealer')).length,active:a.length,delayed:dd,critical:cc,dropped:dr.length,droppedSelection:ds.length,droppedCFT:dc.length,avgIdealDays:avg(dys.map(d=>d.idealDays)),avgActualDays:avg(dys.map(d=>d.actualDays)),avgForecastDays:avg(dys.map(d=>d.forecastDays))};}
+function calculateShowroomMetrics(sr){
+  if(!sr.length)return{total:0,completed:0,active:0,delayed:0,critical:0,avgCompletion:0,avgIdealDays:0,avgActualDays:0,avgForecastDays:0};
+  const a=sr.filter(s=>!isCompleted(s,'showroom'));
+  const ss=sr.map(s=>calcShowroomStats(s));
+  const ds=sr.map(s=>calcShowroomDayMetrics(s));
+  const crit=stageConfig.showroom.criticalDelay,warn=stageConfig.showroom.warningDelay;
+  const cc=a.filter(s=>{const st=calcShowroomStats(s);return st.maxDelay>=crit;}).length;
+  const dc=a.filter(s=>{const st=calcShowroomStats(s);return st.maxDelay>=warn;}).length;
+  return{
+    total:a.length,
+    completed:sr.filter(s=>isCompleted(s,'showroom')).length,
+    active:a.length,
+    delayed:dc,
+    critical:cc,
+    avgCompletion:avg(ss.map(s=>s.pct)),
+    avgIdealDays:avg(ds.map(d=>d.idealDays)),
+    avgActualDays:avg(ds.map(d=>d.actualDays)),
+    avgForecastDays:avg(ds.map(d=>d.forecastDays))
+  };
+}
+
+function calculateDealerMetrics(dl){
+  if(!dl.length)return{total:0,completed:0,active:0,delayed:0,critical:0,dropped:0,droppedSelection:0,droppedCFT:0,avgIdealDays:0,avgActualDays:0,avgForecastDays:0};
+  const a=dl.filter(d=>!isCompleted(d,'dealer')&&!isRejectedDealer(d));
+  const dr=dl.filter(d=>isRejectedDealer(d));
+  const ds=dl.filter(d=>d.currentStage==='Shortlist-reject');
+  const dc=dl.filter(d=>d.currentStage==='CFT-Reject');
+  const dys=dl.map(d=>calcDealerDayMetrics(d));
+  const crit=stageConfig.dealer.criticalDelay,warn=stageConfig.dealer.warningDelay;
+  const cc=a.filter(d=>{const tl=calcDealerTimeline(d);return tl.level==='critical';}).length;
+  const dd=a.filter(d=>{const tl=calcDealerTimeline(d);return tl.isDelayed;}).length;
+  return{
+    total:a.length,
+    completed:dl.filter(d=>isCompleted(d,'dealer')).length,
+    active:a.length,
+    delayed:dd,
+    critical:cc,
+    dropped:dr.length,
+    droppedSelection:ds.length,
+    droppedCFT:dc.length,
+    avgIdealDays:avg(dys.map(d=>d.idealDays)),
+    avgActualDays:avg(dys.map(d=>d.actualDays)),
+    avgForecastDays:avg(dys.map(d=>d.forecastDays))
+  };
+}
 
 function getFilteredShowrooms(){
   const search=(document.getElementById('globalSearch')?.value||'').toLowerCase().trim();const rmFilter=document.getElementById('filterRM')?.value||'all';const stageFilter=document.getElementById('filterShowroomStage')?.value||'all';
