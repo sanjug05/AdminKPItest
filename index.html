@@ -477,7 +477,7 @@ let lastShowroomSnapshotTime=null,lastDealerSnapshotTime=null,firestoreConnected
 let pendingRejectionDealerId=null,pendingRejectionStage=null;
 let notifications=[],previousShowroomState=[],previousDealerState=[];
 let isShowroomModalDirty=false,showroomOriginalValues={},isDealerModalDirty=false,dealerOriginalValues={};
-let toastQueue=[],activeToasts=[],anomalyCooldown=0; // Fix #18, #20
+let toastQueue=[],activeToasts=[],anomalyCooldown=0,backupInProgress=false,lastBackupTs=0; // Fix #18, #20
 
 // Fix #6: Custom confirm modal (Promise-based)
 let confirmResolve=null;
@@ -912,9 +912,16 @@ function closeModal(id){
   const el=document.getElementById(id);
   if(el){el.classList.remove('show-flex');}
   // Fix #3: Clear rejection state on cancel
-  if(id==='rejectionReasonModal'){pendingRejectionDealerId=null;pendingRejectionStage=null;}
+  if(id==='rejectionReasonModal'){
+    pendingRejectionDealerId=null;pendingRejectionStage=null;
+    const rr=document.getElementById('rejectionReasonText');if(rr)rr.value='';
+  }
+  if(id==='edit-showroom-modal')currentEditShowroomId=null;
+  if(id==='edit-dealer-modal')currentEditDealerId=null;
   // Fix #19: Reset form inputs & error classes
   el?.querySelectorAll('.form-input.input-error').forEach(i=>i.classList.remove('input-error'));
+  if(id==='addShowroomModal'){['newShowroomName','newShowroomCity','newShowroomDealerName','newShowroomMobile','newShowroomRM','newShowroomStart'].forEach(fid=>{const i=document.getElementById(fid);if(i)i.value='';});}
+  if(id==='addDealerModal'){['newDealerName','newDealerFirmName','newDealerCity','newDealerMobile','newDealerRM','newDealerStart'].forEach(fid=>{const i=document.getElementById(fid);if(i)i.value='';});}
 }
 function openAddShowroomModal(){openModal('addShowroomModal');}
 function openAddDealerModal(){openModal('addDealerModal');}
@@ -934,9 +941,19 @@ async function exportExecutivePackPDF(){
 
 // Fix #16: Backup with confirmation
 async function backupData(){
+  const now=Date.now();
+  if(backupInProgress){showToast('Backup already in progress','warning');return;}
+  if(now-lastBackupTs<4000){showToast('Please wait before retrying backup','warning');return;}
   const ok=await showConfirm('Backup Data','Download a JSON backup of all showroom and dealer data?');
   if(!ok)return;
-  try{const b={showrooms:state.showrooms,dealers:state.dealers,exportedAt:new Date().toISOString(),version:'4.5'};const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(b,null,2)],{type:'application/json'})),download:`ais_backup_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`});a.click();showToast('Backup downloaded','success');}catch(e){showToast('Failed','error');}}
+  backupInProgress=true;
+  try{
+    const b={showrooms:state.showrooms,dealers:state.dealers,exportedAt:new Date().toISOString(),version:'4.5'};
+    const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(b,null,2)],{type:'application/json'})),download:`ais_backup_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`});
+    a.click();lastBackupTs=Date.now();showToast('Backup downloaded','success');
+  }catch(e){showToast('Failed','error');}
+  finally{backupInProgress=false;}
+}
 
 function initRealtime(){cleanupListeners();isLoading=!0;renderDashboard();
   const su=onSnapshot(collection(db,'showrooms'),snap=>{state.showrooms=snap.docs.map(d=>({id:d.id,...d.data()}));lastShowroomSnapshotTime=new Date();firestoreConnected=!0;isLoading=!1;checkAndNotify();if(currentView==='dashboard')debouncedRenderDashboard();if(currentView==='analytics')renderAnalytics();},e=>{showToast(parseFirebaseError(e,'Unable to load'),'error');isLoading=!1;firestoreConnected=!1;});
