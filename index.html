@@ -6133,8 +6133,7 @@
 
   // ========== IMP 5: COMPACT VIEW TOGGLE ==========
   let isCompactView = (() => {
-    try { return localStorage.getItem('kpiCompactView') === 'true'; } catch(e) { return false; }
-  })();
+    try { return localStorage.getItem('kpiCompactView') === 'true'; } catch(e) { return false; };
 
   function applyCompactView() {
     document.body.classList.toggle('kpi-compact', isCompactView);
