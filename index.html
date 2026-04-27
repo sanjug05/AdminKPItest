@@ -4897,7 +4897,7 @@
         options:{
           responsive:true, maintainAspectRatio:false,
           plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => ` Gap: ${fmt(ctx.parsed.y)}` } },
-            datalabels: (() => { try { return { display: ctx => (ctx.parsed.y||0) > 0, color:'#fff', font:{ size:9, weight:'700' }, formatter: v => v > 0 ? fmt(v) : '', anchor:'end', align:'top', clamp:true }; } catch(e) { return { display:false }; } })()
+            datalabels: { display: ctx => (ctx.parsed.y||0) > 0, color:'#fff', font:{ size:9, weight:'700' }, formatter: v => v > 0 ? fmt(v) : '', anchor:'end', align:'top', clamp:true }
           },
           scales:{
             x:{ ticks:{ color:'var(--text-muted)' }, grid:{ display:false } },
