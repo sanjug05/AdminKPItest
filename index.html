@@ -5077,7 +5077,7 @@
       if (isTatKpi) {
         const idealDays = kpi.idealDays || 4;
         monthlyPct = monthlyActual === 0 ? 0 : (monthlyActual <= idealDays ? 100 : Math.max(0, Math.min(100, 100 - ((
-) - idealDays) / idealDays) * 100)));
+      ) - idealDays) / idealDays) * 100)));
         yearlyPct = yearlyActual === 0 ? 0 : (yearlyActual <= idealDays ? 100 : Math.max(0, Math.min(100, 100 - ((yearlyActual -
           idealDays) / idealDays) * 100)));
         gap = yearlyActual - idealDays;
