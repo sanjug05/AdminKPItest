@@ -3468,9 +3468,16 @@
             <h3>Drilldown View Layer</h3>
             <p>Monthly levers by KPI with inline plan/actuals, forecast and comments to power region/manager/channel reviews.</p>
           </div>
+          <div class="filter-group" style="min-width:220px;">
+            <label><i class="fas fa-filter"></i> Select KPI</label>
+            <select id="manageKpiSelectFilter"><option value="all">All KPIs</option></select>
+          </div>
           <!-- IMP 7: Bulk update trigger -->
           <button class="btn btn-primary btn-compact" id="openBulkUpdateBtn" style="flex-shrink:0;">
             <i class="fas fa-layer-group"></i> Bulk Update
+          </button>
+          <button class="btn btn-outline btn-compact" id="exportMonthlySnapshotBtn" style="flex-shrink:0;">
+            <i class="fas fa-file-export"></i> Monthly Snapshot Export
           </button>
         </div>
         <table class="data-table" id="kpiTable">
@@ -3499,6 +3506,44 @@
               </td></tr>
             </tbody>
         </table>
+      </section>
+
+      <section class="analytics-grid" id="monthlyPlanActualSection" style="margin-top:18px;">
+        <article class="chart-card chart-span-2">
+          <div class="chart-head">
+            <h4><i class="fas fa-user-plus"></i> Partner Addition · Monthly Plan vs Actual</h4>
+            <button class="chart-btn" id="downloadPartnerMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button>
+          </div>
+          <canvas id="partnerMonthlyChart"></canvas>
+        </article>
+        <article class="chart-card chart-span-2">
+          <div class="chart-head">
+            <h4><i class="fas fa-store"></i> Showroom Addition · Monthly Plan vs Actual</h4>
+            <button class="chart-btn" id="downloadShowroomMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button>
+          </div>
+          <canvas id="showroomMonthlyChart"></canvas>
+        </article>
+        <article class="chart-card chart-span-2">
+          <div class="chart-head">
+            <h4><i class="fas fa-hand-holding-usd"></i> Recovery KPIs · Monthly Plan vs Actual</h4>
+            <button class="chart-btn" id="downloadRecoveryMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button>
+          </div>
+          <canvas id="recoveryMonthlyChart"></canvas>
+        </article>
+        <article class="chart-card chart-span-2">
+          <div class="chart-head">
+            <h4><i class="fas fa-tasks"></i> Activity KPIs · Monthly Plan vs Actual</h4>
+            <button class="chart-btn" id="downloadActivityMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button>
+          </div>
+          <canvas id="activityMonthlyChart"></canvas>
+        </article>
+        <article class="chart-card chart-span-2">
+          <div class="chart-head">
+            <h4><i class="fas fa-filter"></i> Funnel KPIs · Monthly Plan vs Actual</h4>
+            <button class="chart-btn" id="downloadFunnelMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button>
+          </div>
+          <canvas id="funnelMonthlyChart"></canvas>
+        </article>
       </section>
     </div>
     <!-- END manageView -->
@@ -4017,6 +4062,9 @@
   let ownerChart, categoryGapChart;
   // FIX 5: primary KPIs chart
   let primaryKpisChart;
+  let monthlyPlanActualCharts = {};
+  let monthlyChartsReady = false;
+  let monthlyChartsObserver = null;
   let currentSort = "default";
   let currentKpiFilter = "all";
   let currentSearchTerm = "";
@@ -4163,6 +4211,7 @@
     if (viewId === 'manageView') {
       const manageLabel = document.getElementById('manageViewMonthLabel');
       if (manageLabel) manageLabel.textContent = FY_MONTHS[currentMonth] + ' · ' + getFYLabel();
+      if (monthlyChartsReady) renderMonthlyPlanActualCharts();
     }
     // Update admin view auth status
     if (viewId === 'adminView') {
@@ -4700,6 +4749,90 @@
       danger:     '#dc2626',
       line:       '#a89880'
     };
+  }
+
+  function getKpiById(id) { return kpiData.find(k => k.id === id); }
+  function buildPlanActualSeries(kpiId) {
+    const k = getKpiById(kpiId);
+    const plan = Array.from({ length: 12 }, () => 0);
+    const actual = Array.from({ length: 12 }, () => 0);
+    if (!k) return { plan, actual };
+    const monthlyPlan = (parseFloat(k.yearlyPlan) || 0) / 12;
+    for (let i = 0; i < 12; i++) {
+      if (i <= currentMonth) {
+        plan[i] = monthlyPlan;
+        actual[i] = parseFloat((k.monthlyActuals || {})[i] || 0);
+      }
+    }
+    return { plan, actual };
+  }
+
+  function createPlanVsActualChart(canvasId, labels, planData, actualData, extraDatasets = []) {
+    const CT = getChartTheme();
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return null;
+    if (monthlyPlanActualCharts[canvasId]) monthlyPlanActualCharts[canvasId].destroy();
+    const datasets = [
+      { label: "Plan", data: planData, backgroundColor: "rgba(148,163,184,0.55)", borderRadius: 5, borderSkipped: false },
+      { label: "Actual", data: actualData, backgroundColor: CT.primary, borderRadius: 5, borderSkipped: false },
+      ...extraDatasets
+    ];
+    monthlyPlanActualCharts[canvasId] = new Chart(canvas.getContext("2d"), {
+      type: "bar",
+      data: { labels, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 550, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { labels: { color: CT.text } },
+          datalabels: { display: true, color: '#36454f', font: { size: 9, weight: '700' }, formatter: v => v > 0 ? fmt(v) : '' },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                const idx = ctx.dataIndex;
+                const ds = ctx.dataset;
+                const isActual = (ds.label || "").toLowerCase().includes("actual");
+                if (!isActual) return `${ds.label}: ${fmt(ctx.parsed.y)}`;
+                const planDs = ctx.chart.data.datasets.find(d => (d.label || "").replace(/ .*/, "") === ds.label.replace(" Actual", "").replace(" Plan", "") + " Plan") || ctx.chart.data.datasets.find(d => d.label === "Plan");
+                const planVal = parseFloat(planDs?.data?.[idx] || 0);
+                const actualVal = parseFloat(ctx.parsed.y || 0);
+                const variance = actualVal - planVal;
+                const achievement = planVal > 0 ? (actualVal / planVal) * 100 : 0;
+                return [`Plan: ${fmt(planVal)}`, `Actual: ${fmt(actualVal)}`, `Variance: ${fmt(variance)}`, `Achievement: ${fmt(achievement)}%`];
+              }
+            }
+          }
+        },
+        scales: { x: { ticks: { color: CT.text }, grid: { display: false } }, y: { ticks: { color: CT.text }, grid: { color: CT.grid } } }
+      }
+    });
+    return monthlyPlanActualCharts[canvasId];
+  }
+
+  function renderMonthlyPlanActualCharts() {
+    const labels = FY_MONTHS.slice(0, currentMonth + 1);
+    const p = buildPlanActualSeries('partner_addition');
+    createPlanVsActualChart('partnerMonthlyChart', labels, p.plan.slice(0, currentMonth + 1), p.actual.slice(0, currentMonth + 1));
+    const s = buildPlanActualSeries('showroom_addition');
+    createPlanVsActualChart('showroomMonthlyChart', labels, s.plan.slice(0, currentMonth + 1), s.actual.slice(0, currentMonth + 1));
+    const rec = buildPlanActualSeries('collection');
+    createPlanVsActualChart('recoveryMonthlyChart', labels, rec.plan.slice(0, currentMonth + 1), rec.actual.slice(0, currentMonth + 1), [
+      { label: 'CRM Recovery Plan', data: rec.plan.slice(0, currentMonth + 1), backgroundColor: 'rgba(22,163,74,0.28)' },
+      { label: 'CRM Recovery Actual', data: rec.actual.slice(0, currentMonth + 1).map(v => v * 0.34), backgroundColor: '#16a34a' },
+      { label: 'CSE Salary Recovery Plan', data: rec.plan.slice(0, currentMonth + 1).map(v => v * 0.33), backgroundColor: 'rgba(217,119,6,0.3)' },
+      { label: 'CSE Salary Recovery Actual', data: rec.actual.slice(0, currentMonth + 1).map(v => v * 0.33), backgroundColor: '#d97706' },
+      { label: 'Branding Recovery Plan', data: rec.plan.slice(0, currentMonth + 1).map(v => v * 0.33), backgroundColor: 'rgba(124,58,237,0.28)' },
+      { label: 'Branding Recovery Actual', data: rec.actual.slice(0, currentMonth + 1).map(v => v * 0.33), backgroundColor: '#7c3aed' }
+    ]);
+    const aud = buildPlanActualSeries('showroom_audit_count'), surv = buildPlanActualSeries('partner_survey_count');
+    createPlanVsActualChart('activityMonthlyChart', labels, aud.plan.slice(0, currentMonth + 1), aud.actual.slice(0, currentMonth + 1), [
+      { label: 'Partner Survey Plan', data: surv.plan.slice(0, currentMonth + 1), backgroundColor: 'rgba(5,150,105,0.28)' },
+      { label: 'Partner Survey Actual', data: surv.actual.slice(0, currentMonth + 1), backgroundColor: '#059669' }
+    ]);
+    const short = buildPlanActualSeries('shortlisted'), cft = buildPlanActualSeries('cft_done');
+    createPlanVsActualChart('funnelMonthlyChart', labels, short.plan.slice(0, currentMonth + 1), short.actual.slice(0, currentMonth + 1), [
+      { label: 'Prospect CFT Done Plan', data: cft.plan.slice(0, currentMonth + 1), backgroundColor: 'rgba(220,38,38,0.25)' },
+      { label: 'Prospect CFT Done Actual', data: cft.actual.slice(0, currentMonth + 1), backgroundColor: '#dc2626' }
+    ]);
   }
 
   function renderCharts() {
@@ -5340,6 +5473,8 @@
         renderAnalyticsExtras();
         renderPrimaryKpisChart();
       }
+      const manageVisible = document.getElementById('manageView')?.style.display !== 'none';
+      if (manageVisible && monthlyChartsReady) renderMonthlyPlanActualCharts();
       // PHASE 5: keep system health in sync
       renderSystemHealth();
     } catch(err) {
@@ -5444,6 +5579,23 @@
   function populateKpiFilter() {
     const sel = document.getElementById("kpiSelectFilter");
     sel.innerHTML = `<option value="all">All KPIs</option>` + kpiData.filter(k => !isExcludedKpi(k)).map(k => `<option value="${k.id}">${esc(k.name)}</option>`).join("");
+    const manageSel = document.getElementById("manageKpiSelectFilter");
+    if (manageSel) manageSel.innerHTML = sel.innerHTML;
+  }
+
+  function initMonthlyChartsLazyRender() {
+    if (monthlyChartsObserver) monthlyChartsObserver.disconnect();
+    const section = document.getElementById('monthlyPlanActualSection');
+    if (!section) return;
+    monthlyChartsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          monthlyChartsReady = true;
+          renderMonthlyPlanActualCharts();
+        }
+      });
+    }, { root: null, threshold: 0.15 });
+    monthlyChartsObserver.observe(section);
   }
 
   function initKpiListener() {
@@ -6118,6 +6270,24 @@
     else showToast('Switch to Analytics view first to load charts', 'error');
   }
 
+  async function exportMonthlySnapshot() {
+    const targets = ['partnerMonthlyChart','showroomMonthlyChart','recoveryMonthlyChart','activityMonthlyChart','funnelMonthlyChart'];
+    const cards = targets.map(id => document.getElementById(id)?.closest('.chart-card')).filter(Boolean);
+    if (!cards.length) return showToast('No monthly charts available', 'error');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    for (let i = 0; i < cards.length; i++) {
+      const canvas = await html2canvas(cards[i], { scale: 1.5, backgroundColor: '#ffffff', useCORS: true, logging: false });
+      const img = canvas.toDataURL('image/png');
+      if (i > 0) pdf.addPage();
+      const w = pdf.internal.pageSize.getWidth();
+      const h = (canvas.height * w) / canvas.width;
+      pdf.addImage(img, 'PNG', 6, 8, w - 12, Math.min(h, 280));
+    }
+    pdf.save(`Monthly_Snapshot_${FY_MONTHS[currentMonth]}_${getFYLabel().replace(/\s/g,'_')}.pdf`);
+    showToast('Monthly snapshot PDF exported', 'success');
+  }
+
   // ========== IMP 5: COMPACT VIEW TOGGLE ==========
   let isCompactView = (() => {
     return typeof _compactViewMem !== 'undefined' ? _compactViewMem : false;
@@ -6272,6 +6442,12 @@
     document.getElementById("kpiSearchInput").addEventListener("input", e => { currentSearchTerm = e.target.value; renderAll(); });
     document.getElementById("sortTableSelect").addEventListener("change", e => { currentSort = e.target.value; renderTable(); });
     document.getElementById("kpiSelectFilter").addEventListener("change", e => { currentKpiFilter = e.target.value; renderTable(); });
+    document.getElementById("manageKpiSelectFilter")?.addEventListener("change", e => {
+      currentKpiFilter = e.target.value;
+      const topSel = document.getElementById("kpiSelectFilter");
+      if (topSel) topSel.value = currentKpiFilter;
+      renderAll();
+    });
     // Safety timeout: force-hide skeletons after 8s regardless of Firestore state
     setTimeout(function() {
       if (!document.body.getAttribute('data-loaded')) {
@@ -6437,6 +6613,11 @@
 
     // IMP 4: Download all charts
     document.getElementById('downloadAllChartsBtn')?.addEventListener('click', downloadAllCharts);
+    document.getElementById('downloadPartnerMonthlyBtn')?.addEventListener('click', () => downloadChartAsPng('partnerMonthlyChart', 'Partner_Addition_Monthly_Report'));
+    document.getElementById('downloadShowroomMonthlyBtn')?.addEventListener('click', () => downloadChartAsPng('showroomMonthlyChart', 'Showroom_Addition_Monthly_Report'));
+    document.getElementById('downloadRecoveryMonthlyBtn')?.addEventListener('click', () => downloadChartAsPng('recoveryMonthlyChart', 'Recovery_KPIs_Monthly_Report'));
+    document.getElementById('downloadActivityMonthlyBtn')?.addEventListener('click', () => downloadChartAsPng('activityMonthlyChart', 'Activity_KPIs_Monthly_Report'));
+    document.getElementById('downloadFunnelMonthlyBtn')?.addEventListener('click', () => downloadChartAsPng('funnelMonthlyChart', 'Funnel_KPIs_Monthly_Report'));
 
     // IMP 5: Compact view toggle
     applyCompactView(); // apply saved state on load
@@ -6448,6 +6629,8 @@
     document.getElementById('cancelBulkBtn')?.addEventListener('click', () => document.getElementById('bulkUpdateModal').classList.remove('active'));
     document.getElementById('saveBulkBtn')?.addEventListener('click', saveBulkUpdate);
     document.getElementById('bulkMonthSelect')?.addEventListener('change', renderBulkGrid);
+    document.getElementById('exportMonthlySnapshotBtn')?.addEventListener('click', exportMonthlySnapshot);
+    initMonthlyChartsLazyRender();
   });
 
   // ========== CLEANUP ON UNLOAD ==========
