@@ -3415,6 +3415,28 @@
         </div>
         <canvas id="primaryKpisChart"></canvas>
       </article>
+      <section class="analytics-grid" id="monthlyPlanActualSection" style="margin-bottom:18px;">
+        <article class="chart-card">
+          <div class="chart-head"><h4><i class="fas fa-user-plus"></i> Partner Addition · Monthly Plan vs Actual</h4><button class="chart-btn" id="downloadPartnerMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button></div>
+          <div class="chart-container" style="height:300px; position:relative;"><canvas id="partnerMonthlyChart"></canvas></div>
+        </article>
+        <article class="chart-card">
+          <div class="chart-head"><h4><i class="fas fa-store"></i> Showroom Addition · Monthly Plan vs Actual</h4><button class="chart-btn" id="downloadShowroomMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button></div>
+          <div class="chart-container" style="height:300px; position:relative;"><canvas id="showroomMonthlyChart"></canvas></div>
+        </article>
+        <article class="chart-card">
+          <div class="chart-head"><h4><i class="fas fa-hand-holding-usd"></i> Recovery KPIs · Monthly Plan vs Actual</h4><button class="chart-btn" id="downloadRecoveryMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button></div>
+          <div class="chart-container" style="height:300px; position:relative;"><canvas id="recoveryMonthlyChart"></canvas></div>
+        </article>
+        <article class="chart-card">
+          <div class="chart-head"><h4><i class="fas fa-tasks"></i> Activity KPIs · Monthly Plan vs Actual</h4><button class="chart-btn" id="downloadActivityMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button></div>
+          <div class="chart-container" style="height:300px; position:relative;"><canvas id="activityMonthlyChart"></canvas></div>
+        </article>
+        <article class="chart-card chart-span-2">
+          <div class="chart-head"><h4><i class="fas fa-filter"></i> Funnel KPIs · Monthly Plan vs Actual</h4><button class="chart-btn" id="downloadFunnelMonthlyBtn"><i class="fas fa-download"></i> Download PNG</button></div>
+          <div class="chart-container" style="height:300px; position:relative;"><canvas id="funnelMonthlyChart"></canvas></div>
+        </article>
+      </section>
 
       <!-- PHASE 10: Anomaly detection card -->
       <div id="anomalyCard" class="anomaly-card" style="display:none;">
@@ -3507,7 +3529,7 @@
             </tbody>
         </table>
       </section>
-
+=======
       <section class="analytics-grid" id="monthlyPlanActualSection" style="margin-top:18px;">
         <article class="chart-card chart-span-2">
           <div class="chart-head">
@@ -5472,6 +5494,7 @@
         renderCharts();
         renderAnalyticsExtras();
         renderPrimaryKpisChart();
+        if (monthlyChartsReady) renderMonthlyPlanActualCharts();
       }
       const manageVisible = document.getElementById('manageView')?.style.display !== 'none';
       if (manageVisible && monthlyChartsReady) renderMonthlyPlanActualCharts();
