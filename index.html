@@ -1227,8 +1227,6 @@
     }
 
     .chart-card canvas { height: 260px; min-height: 180px; width: 100%; display: block; }
-    .chart-container { height:300px; max-height:320px; }
-    .chart-container canvas { width:100% !important; height:100% !important; }
     /* barPlanActualChart is wrapped in a fixed-height div — canvas fills 100% of it */
     #barPlanActualChart { height: 100%; min-height: unset; }
     #horizontalAchievementChart { height: 100%; min-height: unset; }
@@ -4052,7 +4050,7 @@
   let monthlyPlanActualCharts = {};
   let monthlyChartsReady = false;
   let monthlyChartsObserver = null;
-  let activeView = 'dashboardView';
+  let activeView = 'dashboard';
   let currentSort = "default";
   let currentKpiFilter = "all";
   let currentSearchTerm = "";
@@ -4185,7 +4183,7 @@
 
   // ========== PHASE 1: VIEW NAVIGATION ==========
   function switchView(viewId) {
-    activeView = viewId;
+    activeView = viewId === 'analyticsView' ? 'analytics' : viewId;
     document.querySelectorAll('.view').forEach(v => { v.style.display = 'none'; });
     const target = document.getElementById(viewId);
     if (target) { target.style.display = 'block'; }
@@ -4759,7 +4757,9 @@
     const CT = getChartTheme();
     const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
-    window.chartInstances = window.chartInstances || {};
+    if (!window.chartInstances) {
+      window.chartInstances = {};
+    }
     if (window.chartInstances[canvasId]) window.chartInstances[canvasId].destroy();
     const datasets = [
       { label: "Plan", data: planData, backgroundColor: "rgba(148,163,184,0.55)", borderRadius: 5, borderSkipped: false },
@@ -4798,7 +4798,7 @@
   }
 
   function renderMonthlyPlanActualCharts() {
-    if (activeView !== 'analyticsView') return;
+    if (activeView !== 'analytics') return;
     const labels = FY_MONTHS.slice(0, currentMonth + 1);
     const p = buildPlanActualSeries('partner_addition');
     createPlanVsActualChart('partnerMonthlyChart', labels, p.plan.slice(0, currentMonth + 1), p.actual.slice(0, currentMonth + 1));
